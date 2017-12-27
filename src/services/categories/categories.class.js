@@ -126,6 +126,7 @@ class Service {
           let site_id = req.params.siteId
           let username =  await self.check(req)
           req.body["user"] = username
+          req.body["vid"] = "sup5-1"
           let response = await self.createCategoryToES(username,req)
           res.send(response)
         });
@@ -136,6 +137,7 @@ class Service {
           }
           let username =  await self.check(req)
           req.body["user"] = username
+          req.body["vid"] = "sup5-1"
           let response = await self.createCategoryToES(username,req)
           console.log("_____________",response);
           res.send(response)
@@ -169,6 +171,7 @@ class Service {
           }
           let username =  await self.check(req)
           req.body["user"] = username
+          req.body["vid"] = "sup5-1"
           let response = await self.createCategoryToES(username,req)
           console.log("__________",response)
           res.send(response)
@@ -182,6 +185,7 @@ class Service {
           req.body["site_id"] = req.params.siteId
           let username =  await self.check(req)
           req.body["user"] = username
+          req.body["vid"] = "sup5-1"
           let response = await self.createCategoryToES(username,req)
           console.log("__________",response)
           res.send(response)
@@ -217,6 +221,7 @@ class Service {
           }
           let username =  await self.check(req)
           req.body["user"] = username
+          req.body["vid"] = "sup5-1"
           let response = await self.saveSlugToES(username,req)
           console.log("__________",response)
           res.send(response)
@@ -230,6 +235,7 @@ class Service {
           req.body["site_id"] = req.params.siteId
           let username =  await self.check(req)
           req.body["user"] = username
+          req.body["vid"] = "sup5-1"
           let response = await self.saveSlugToES(username,req)
           console.log("__________",response)
           res.send(response)
