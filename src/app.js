@@ -14,7 +14,7 @@ const rest = require('feathers-rest');
 const jwt = require('feathers-authentication-jwt');
 const auth = require('feathers-authentication');
 const config = require('../config/default.json');
-console.log("process......",process.env.esUrl,process.env)
+
 if (process.env.esUrl != '')
     config.esUrl = process.env.esUrl
 if(process.env.secret != '')
