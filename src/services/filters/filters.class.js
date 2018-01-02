@@ -64,6 +64,21 @@ class Service {
       let searchResult = this.getResultFromES(bodyData,params)
       return Promise.resolve(searchResult)
     }
+    else if(attribute_key == 'username'){
+    let bodyData ={
+        "size": 0,
+       "aggs": {
+              "group_by_attributes" : {
+                "terms": {
+                  "field": "supplier_info.username.keyword",
+                  "size": 1000
+                }
+              }
+            }
+      }
+      let searchResult = this.getResultFromES(bodyData,params)
+      return Promise.resolve(searchResult)
+    }
     else{
       let bodyData ={
           "size": 0,
@@ -105,6 +120,22 @@ class Service {
               "group_by_linename" : {
                 "terms": {
                   "field": "linename.raw",
+                  "size": 1000
+                }
+              }
+            }
+      }
+        let searchResult = this.getResultFromES(bodyData,params)
+        return Promise.resolve(searchResult)
+
+    }
+    else if(attribute_key == 'username'){
+      let bodyData = {
+        "size": 0,
+       "aggs": {
+              "group_by_username" : {
+                "terms": {
+                  "field": "supplier_info.username.keyword",
                   "size": 1000
                 }
               }
