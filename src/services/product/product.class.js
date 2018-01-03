@@ -120,45 +120,10 @@ async getByIdAndCountry(region,id,req) {
 
   get (region,params) {
     console.log("get.........")
-    let bodyData ={
-   "query" : {
-      "bool" : {
-         "filter" : {
-            "bool" : {
-              "should" : [
-                { "bool" : {
-                  "must" : [
-                     { "match" : {"available_regions" : region}},
-                    { "bool" : {
-                  "must_not" : [
-                    { "match" : {"non-available_regions" : region}}
-                  ]
-                }}
-                  ]
-                }},
-                { "bool" : {
-                  "must" : [
-                     { "match" : {"available_regions" : ""}},
-                    { "match" : {"non-available_regions" : ""}}
-                  ]
-                }}
-              ]
-           }
-         },
-           "must": {
-                  "match_all": {
-
-                  }
-                }
-
-      }
-   }
-}
     // console.log("@@@@@@@@@@@",bodyData)
-    let searchResult = this.getResultFromES(bodyData,params)
+    let searchResult = this.getDataFromES(region, params)
     return Promise.resolve(searchResult)
   }
-
 
   async check (req,bodyData) {
 
@@ -241,13 +206,70 @@ async getByIdAndCountry(region,id,req) {
     })
     return response
   }
-  // create (data, params) {
-  //   if (Array.isArray(data)) {
-  //     return Promise.all(data.map(current => this.create(current)));
-  //   }
-  //
-  //   return Promise.resolve(data);
-  // }
+
+  async getDataFromES (region, params, query) {
+    console.log("post/get.........")
+    let bodyData = {
+      "query" : {
+        "bool" : {
+           "filter" : {
+              "bool" : {
+                "should" : [
+                  { "bool" : {
+                    "must" : [
+                       { "match" : {"available_regions" : region}},
+                      { "bool" : {
+                    "must_not" : [
+                      { "match" : {"non-available_regions" : region}}
+                    ]
+                  }}
+                    ]
+                  }},
+                  { "bool" : {
+                    "must" : [
+                       { "match" : {"available_regions" : ""}},
+                      { "match" : {"non-available_regions" : ""}}
+                    ]
+                  }}
+                ]
+             }
+           },
+            "must": {
+                    "match_all": {
+
+                    }
+                }
+        }
+      }
+    }
+
+    if (query !== undefined && query !== '') {
+      bodyData.query.bool.must = query
+    }
+
+    // console.log("@@@@@@@@@@@", bodyData.query.bool)
+      let searchResult = this.getResultFromES(bodyData, params)
+      return Promise.resolve(searchResult)
+  }
+
+
+
+
+
+  create (data, params) {
+    if (data.country === undefined || data.country === '') {
+      return {'message': 'country required'}
+    }
+    let query = ''
+    if (data.query !== undefined && data.query !== '') {
+      query = data.query
+    }
+    data = this.getDataFromES (data.country, params, query)
+    if (Array.isArray(data)) {
+      return Promise.all(data.map(current => this.create(current)));
+    }
+    return Promise.resolve(data);
+  }
   //
   // update (id, data, params) {
   //   return Promise.resolve(data);
