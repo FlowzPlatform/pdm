@@ -14,11 +14,11 @@ if(process.env.auth_url != '')
 if(process.env.pwd != '')
     config.pwd = process.env.pwd
 const credOptions = {
-  'index' : 'XXXX',
+  'index' : 'XXXXX',
   'usernname': 'XXXXXX',
-  'password': 'XXXXXX'
+  'password': 'XXXXX'
 }
-const esURL = 'YOUR ELASTIC URL'
+const esURL = 'YOUR ELASTIC SEARCH URL'
 const uri = 'https://' + credOptions.usernname + ':' + credOptions.password + esURL + '/' + credOptions.index + '/_search'
 
 class Service {
@@ -33,6 +33,7 @@ class Service {
         return done(err)
       }
       let searchResult = await self.getDataFromES(req.body.query, req.feathers, req.params.country)
+      console.log('info: after: pdm - Method: custom create')
       res.send(searchResult)
     })
   }
@@ -89,7 +90,6 @@ class Service {
         if (error) {
           resolve(error)
         } else {
-          console.log('info: after: pdm - Method: custom create')
           resolve(response.body.hits.hits)
         }
       })
@@ -128,11 +128,12 @@ class Service {
         }
       }
     }
-
     if (query !== undefined && query !== '') {
       bodyData.query.bool.must = query
     }
-
+    if (country == '') {
+      bodyData.query = query
+    }
     let searchResult = await this.getResultFromES(bodyData, params)
     return searchResult
   }
