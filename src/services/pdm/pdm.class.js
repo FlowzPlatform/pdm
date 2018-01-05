@@ -14,41 +14,36 @@ if(process.env.auth_url != '')
 if(process.env.pwd != '')
     config.pwd = process.env.pwd
 const credOptions = {
-  'index' : 'XXXXXX',
-  'usernname': 'XXXXX',
-  'password': 'XXXXX'
+  'index' : 'XXXX',
+  'usernname': 'XXXXXX',
+  'password': 'XXXXXX'
 }
-const esURL = 'XXXXXXXXX'
+const esURL = 'YOUR ELASTIC URL'
 const uri = 'https://' + credOptions.usernname + ':' + credOptions.password + esURL + '/' + credOptions.index + '/_search'
-const keywords = ['country', 'sku', 'text', 'product_name', 'categories']
-const Esearch = ['country', 'sku', ['product_name', 'search_keyword', 'description'], 'product_name', 'categories']
-const query = {
-  "query" : {
-    "bool" : {
-      "filter" : {
-        "bool" : {
-          "should" : [
-            { "bool" : {
-              "must" : [
-                  { "match" : "" }
-                ]
-              }
-            }
-          ]
-        }
-      }
-    }
-  }
-}
+
 class Service {
   constructor (options) {
     this.options = options || {};
   }
 
+  _setup(app, path) {
+    var self = this;
+    app.post('/' + path + '/:country',async function (req, res, err) {
+      if (err && err === 'router') {
+        return done(err)
+      }
+      let searchResult = await self.getDataFromES(req.body.query, req.feathers, req.params.country)
+      res.send(searchResult)
+    })
+  }
+
   async find (params) {
-    // {"country" : params.query.country}
-    console.log('params', params)
-    let getAllResult = await this.getAllResultFromES(params)
+    let getAllResult
+    if (params.query == null) {
+      getAllResult = ['Query String Parameters Not Found']      
+    } else {
+      getAllResult = await this.getAllResultFromES(params)
+    }
     return getAllResult
   }
 
@@ -94,18 +89,52 @@ class Service {
         if (error) {
           resolve(error)
         } else {
+          console.log('info: after: pdm - Method: custom create')
           resolve(response.body.hits.hits)
         }
       })
     })
   }
 
-  create (data, params) {
-    console.log('data', data)
-    if (Array.isArray(data)) {
-      return Promise.all(data.map(current => this.create(current)));
+  async create (data, params) {
+    let query = ''
+    let country = ''
+    if (data.query !== undefined && data.query !== '') {
+      query = data.query
     }
-    return Promise.resolve(data);
+    let searchResult = await this.getDataFromES(query, params, country)
+    return searchResult
+  }
+
+  async getDataFromES (query, params, country) {
+    let bodyData = {
+      "query" : {
+        "bool" : {
+          "filter" : {
+            "bool" : {
+              "should" : [
+                { "bool" : {
+                  "must" : [
+                      { "match" : {"country" : country} }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          "must": {
+            "match_all": {}
+          }
+        }
+      }
+    }
+
+    if (query !== undefined && query !== '') {
+      bodyData.query.bool.must = query
+    }
+
+    let searchResult = await this.getResultFromES(bodyData, params)
+    return searchResult
   }
 
   update (id, data, params) {
