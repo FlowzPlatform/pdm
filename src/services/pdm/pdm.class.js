@@ -14,12 +14,14 @@ if(process.env.auth_url != '')
 if(process.env.pwd != '')
     config.pwd = process.env.pwd
 const credOptions = {
-  'index' : 'XXXXX',
-  'usernname': 'XXXXXX',
-  'password': 'XXXXX'
+  'index' : process.env.index,
+  'usernname': process.env.user,
+  'password': process.env.pwd
 }
-const esURL = 'YOUR ELASTIC SEARCH URL'
-const uri = 'https://' + credOptions.usernname + ':' + credOptions.password + esURL + '/' + credOptions.index + '/_search'
+
+var esURL = config.esUrl
+esURL = esURL.substr(8)
+const uri = 'https://' + credOptions.usernname + ':' + credOptions.password + '@' + esURL + '/' + credOptions.index + '/_search'
 
 class Service {
   constructor (options) {
@@ -34,6 +36,22 @@ class Service {
       }
       let searchResult = await self.getDataFromES(req.body.query, req.feathers, req.params.country)
       console.log('info: after: pdm - Method: custom create')
+      res.send(searchResult)
+    })
+    app.post('/:index//:action', async function (req, res, err) {
+      var country = 'CA'
+      if (err & err === 'router') {
+        return done(err)
+      }
+      let searchResult = await self.get(country, req.feathers)
+      res.send(searchResult)
+    })
+    app.post('/:index/', async function (req, res, err) {
+      var country = 'US'
+      if (err & err === 'router') {
+        return done(err)
+      }
+      let searchResult = await self.get(country, req.feathers)
       res.send(searchResult)
     })
   }
@@ -54,8 +72,7 @@ class Service {
         if (error) {
           resolve(error)
         } else {
-          let body = JSON.parse(response.body)
-          resolve(body.hits.hits)
+          resolve(response.body)
         }
       })
     })
@@ -80,6 +97,7 @@ class Service {
         }
       }
     }
+
     let searchResult = await this.getResultFromES(query, params)
     return searchResult
   }
@@ -90,7 +108,7 @@ class Service {
         if (error) {
           resolve(error)
         } else {
-          resolve(response.body.hits.hits)
+          resolve(response.body)
         }
       })
     })

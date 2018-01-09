@@ -5,6 +5,7 @@ const webhook2 = require('./webhook-2/webhook-2.service.js');
 const filters = require('./filters/filters.service.js');
 const categories = require('./categories/categories.service.js');
 const pdm = require('./pdm/pdm.service.js');
+
 module.exports = function () {
   const app = this; // eslint-disable-line no-unused-vars
   app.configure(product);
