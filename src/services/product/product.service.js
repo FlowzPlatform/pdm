@@ -1,10 +1,9 @@
 // Initializes the `product` service on path `/api/products`
 const createService = require('./product.class.js');
 const hooks = require('./product.hooks');
-const filters = require('./product.filters');
 const swagger = require('feathers-swagger');
-const jwt = require('feathers-authentication-jwt');
-const auth = require('feathers-authentication');
+const jwt = require('@feathersjs/authentication-jwt');
+const auth = require('@feathersjs/authentication');
 var jwt1 = require('jsonwebtoken');
 var request = require('request');
 const memory = require('feathers-memory');
@@ -42,12 +41,12 @@ module.exports = function () {
     paginate
   };
 
-  app.configure(swagger({
-      docsPath: '/docs',
-      prefix: /api\/v\d\//,
-      versionPrefix: /v\d/,
-      uiIndex: true,
-  }))
+  // app.configure(swagger({
+  //     docsPath: '/docs',
+  //     prefix: /api\/v\d\//,
+  //     versionPrefix: /v\d/,
+  //     uiIndex: true,
+  // }))
 
 
   // Initialize our service with any options it requires
@@ -85,13 +84,6 @@ module.exports = function () {
     }
 
   });
-
-
-
-
-  if (service.filter) {
-    service.filter(filters);
-  }
 };
 
 async function check(hook){

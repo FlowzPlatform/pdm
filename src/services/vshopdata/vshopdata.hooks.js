@@ -1,10 +1,13 @@
 
-
 module.exports = {
   before: {
     all: [],
-    find: [],
-    get: [],
+    find: [
+    //hook => beforeFind(hook)
+    ],
+    get: [
+      hook => before(hook)
+    ],
     create: [],
     update: [],
     patch: [],
@@ -14,7 +17,9 @@ module.exports = {
   after: {
     all: [],
     find: [],
-    get: [],
+    get: [
+      //hook => after(hook)
+    ],
     create: [],
     update: [],
     patch: [],
@@ -31,3 +36,14 @@ module.exports = {
     remove: []
   }
 };
+
+
+function before(hook){
+  return hook.app.service('vshopdata').find({
+    query: { userId: hook.id }
+  }).then(page => {
+    hook.result = page.data;
+    return hook;
+  });
+}
+
