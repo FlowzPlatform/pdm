@@ -28,6 +28,74 @@ class Service {
     this.options = options || {};
   }
 
+  async find (params) {
+    let getAllResult
+    let queryBody = {
+      "query" : {
+        "bool" : {
+          "filter" : {
+            "bool" : {
+              "should" : [
+                { 
+                  "bool" : {
+                    "must" : []
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+    if (Object.keys(params.query).length == 0) {
+      getAllResult = ['Please give parameters to search']     
+    } else {
+      Object.keys(params.query).forEach(function(key){
+        queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
+      })
+      getAllResult = await this.getResultFromES(queryBody, params)
+    }
+    return getAllResult
+  }
+
+  async get (language, params) {
+    let queryBody = {
+      "query" : {
+        "bool" : {
+          "filter" : {
+            "bool" : {
+              "should" : [
+                { "bool" : {
+                  "must" : [
+                      { "match" : {"country" : language} }
+                    ]
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+    if (!Object.keys(params.query).length == 0) {
+      Object.keys(params.query).forEach(function(key){
+        queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
+      })
+    }
+    let searchResult = await this.getResultFromES(queryBody, params)
+    return searchResult
+  }
+
+  async create (data, params) {
+    let query = ''
+    let country = ''
+    if (data.query !== undefined && data.query !== '') {
+      query = data.query
+    }
+    let searchResult = await this.getDataFromES(query, params, country)
+    return searchResult
+  }
+
   _setup(app, path) {
     var self = this;
     app.post('/' + path + '/:country',async function (req, res, err) {
@@ -56,16 +124,6 @@ class Service {
     })
   }
 
-  async find (params) {
-    let getAllResult
-    if (params.query == null) {
-      getAllResult = ['Query String Parameters Not Found']      
-    } else {
-      getAllResult = await this.getAllResultFromES(params)
-    }
-    return getAllResult
-  }
-
   getAllResultFromES(params) {
     return new Promise((resolve, reject) => {
       request({method: 'post', url: uri}, function (error, response, body) {
@@ -77,31 +135,7 @@ class Service {
       })
     })
   }
-
-  async get (language, params) {
-    let query = {
-      "query" : {
-        "bool" : {
-          "filter" : {
-            "bool" : {
-              "should" : [
-                { "bool" : {
-                  "must" : [
-                      { "match" : {"country" : language} }
-                    ]
-                  }
-                }
-              ]
-            }
-          }
-        }
-      }
-    }
-
-    let searchResult = await this.getResultFromES(query, params)
-    return searchResult
-  }
-
+  
   getResultFromES(query, params) {
     return new Promise((resolve, reject) => {
       request({method: 'post', url: uri, json: true, body: query}, function (error, response, body) {
@@ -114,18 +148,8 @@ class Service {
     })
   }
 
-  async create (data, params) {
-    let query = ''
-    let country = ''
-    if (data.query !== undefined && data.query !== '') {
-      query = data.query
-    }
-    let searchResult = await this.getDataFromES(query, params, country)
-    return searchResult
-  }
-
   async getDataFromES (query, params, country) {
-    let bodyData = {
+    let queryBody = {
       "query" : {
         "bool" : {
           "filter" : {
@@ -147,12 +171,12 @@ class Service {
       }
     }
     if (query !== undefined && query !== '') {
-      bodyData.query.bool.must = query
+      queryBody.query.bool.must = query
     }
     if (country == '') {
-      bodyData.query = query
+      queryBody.query = query
     }
-    let searchResult = await this.getResultFromES(bodyData, params)
+    let searchResult = await this.getResultFromES(queryBody, params)
     return searchResult
   }
 
