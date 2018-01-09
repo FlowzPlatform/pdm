@@ -4,17 +4,14 @@ const compress = require('compression');
 const cors = require('cors');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-
 const feathers = require('feathers');
 
 const configuration = require('feathers-configuration');
 const hooks = require('feathers-hooks');
 const rest = require('feathers-rest');
 const socketio = require('feathers-socketio')
-
-
-const jwt = require('feathers-authentication-jwt');
-const auth = require('feathers-authentication');
+const jwt = require('@feathersjs/authentication-jwt');
+const auth = require('@feathersjs/authentication');
 const config = require('../config/default.json');
 
 if (process.env.esUrl != '')
@@ -33,7 +30,7 @@ const appHooks = require('./app.hooks');
 
 const rethinkdb = require('./rethinkdb');
 
-const app = feathers();
+const app = express(feathers());
 // Load app configuration
 app.configure(configuration(path.join(__dirname, '..')))
 
@@ -45,10 +42,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 // Host the public folder
-app.use('/', feathers.static(app.get('public')));
+app.use('/', express.static(app.get('public')));
 
-// Set up Plugins and providers
-app.configure(hooks());
 app.configure(rethinkdb);
 app.configure(rest());
 app.configure(auth({ secret: config.secret }));

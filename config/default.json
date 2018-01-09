@@ -10,13 +10,13 @@
     "db": "feather_product",
     "servers": [
       {
-        "host": "localhost",
-        "port": "28015"
+        "host": "RDB_HOST",
+        "port": "RDB_PORT"
       }
     ]
   },
-  "esUrl": "http://localhost:9200",
+  "esUrl": "xxxxx",
   "secret": "xxxxxxxxxxx",
-  "auth_url":"http://localhost",
+  "auth_url":"xxxxxx",
   "pwd": "xxxxxx"
 }

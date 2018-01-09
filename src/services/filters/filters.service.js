@@ -1,9 +1,8 @@
 // Initializes the `filters` service on path `/filters`
 const createService = require('./filters.class.js');
 const hooks = require('./filters.hooks');
-const filters = require('./filters.filters');
-const jwt = require('feathers-authentication-jwt');
-const auth = require('feathers-authentication');
+const jwt = require('@feathersjs/authentication-jwt');
+const auth = require('@feathersjs/authentication');
 var jwt1 = require('jsonwebtoken');
 var request = require('request')
 const config = require('../../../config/default.json');
@@ -60,12 +59,6 @@ module.exports = function () {
     }
 
   });
-
-
-
-  if (service.filter) {
-    service.filter(filters);
-  }
 };
 
 async function check(hook){
@@ -81,29 +74,29 @@ async function check(hook){
 
  }
 
- function getUserById(hook,userid){
-  return new Promise((resolve,reject)=>{
-    url = config.auth_url + userid
-    var requestObj = {
-      url: url,
-      headers: {
-        'Authorization':  hook.params.headers.authorization,
-        'Accept': 'application/json'
-      }
-    }
+function getUserById(hook,userid){
+ return new Promise((resolve,reject)=>{
+   url = config.auth_url + userid
+   var requestObj = {
+     url: url,
+     headers: {
+       'Authorization':  hook.params.headers.authorization,
+       'Accept': 'application/json'
+     }
+   }
 
-     request(requestObj,function (err, response) {
-      if (err){
-        console.log(err)
-      }
-      else{
-        res = response.body
-        parsedResponse = JSON.parse(res)
-        console.log(parsedResponse.data);
-        username = parsedResponse.data[0].username
-        resolve(username)
-      }
-    })
-  })
+    request(requestObj,function (err, response) {
+     if (err){
+       console.log(err)
+     }
+     else{
+       res = response.body
+       parsedResponse = JSON.parse(res)
+       console.log(parsedResponse.data);
+       username = parsedResponse.data[0].username
+       resolve(username)
+     }
+   })
+ })
 
- }
+}
