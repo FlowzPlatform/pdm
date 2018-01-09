@@ -1,4 +1,22 @@
 {
-  "host": "feather-product-app.feathersjs.com",
-  "port": "PORT"
+  "host": "localhost",
+  "port": 3038,
+  "public": "../public/",
+  "paginate": {
+    "default": 10,
+    "max": 50
+  },
+  "rethinkdb": {
+    "db": "feather_product",
+    "servers": [
+      {
+        "host": "RDB_HOST",
+        "port": "RDB_PORT"
+      }
+    ]
+  },
+  "esUrl": "xxxxxxxxxxx",
+  "secret": "xxxxxxxxxxx",
+  "auth_url":"xxxxxxxxxxx",
+  "pwd": "xxxxxx"
 }
