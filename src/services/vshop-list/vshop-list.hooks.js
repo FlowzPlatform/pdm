@@ -1,9 +1,12 @@
 
+
 module.exports = {
   before: {
     all: [],
     find: [],
-    get: [],
+    get: [
+      hook => before(hook)
+    ],
     create: [],
     update: [],
     patch: [],
@@ -31,3 +34,15 @@ module.exports = {
   }
 };
 
+
+function before(hook){
+  return hook.app.service('vshopdata').find({
+    query: { 
+      userId: hook.id,
+      status: "completed"
+    }
+  }).then(page => {
+    hook.result = page.data;
+    return hook;
+  });
+}

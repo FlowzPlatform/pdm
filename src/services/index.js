@@ -3,6 +3,7 @@ const subscribeToWebHooks = require('./subscribe-to-web-hooks/subscribe-to-web-h
 const filters = require('./filters/filters.service.js');
 const categories = require('./categories/categories.service.js');
 const vshopdata = require('./vshopdata/vshopdata.service.js');
+const vshopList = require('./vshop-list/vshop-list.service.js');
 module.exports = function () {
   const app = this; // eslint-disable-line no-unused-vars
   app.configure(product);
@@ -10,4 +11,5 @@ module.exports = function () {
   app.configure(filters);
   app.configure(categories);
   app.configure(vshopdata);
+  app.configure(vshopList);
 };
