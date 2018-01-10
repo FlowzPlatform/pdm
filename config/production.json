@@ -15,8 +15,8 @@
       }
     ]
   },
-  "esUrl": "xxxxx",
+  "esUrl": "xxxxxxxxxxx",
   "secret": "xxxxxxxxxxx",
-  "auth_url":"xxxxxx",
+  "auth_url":"xxxxxxxxxxx",
   "pwd": "xxxxxx"
 }

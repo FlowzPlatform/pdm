@@ -1,0 +1,54 @@
+sudo: required
+
+language: node
+
+services:
+  - docker
+
+branches:
+  only:
+  - master
+  - develop
+  - QA
+
+jobs:
+  include:
+    - stage: Pdm-Backend-Fowz
+      script:
+      - 'if [ ${TRAVIS_BRANCH} = "master" ]; then
+            docker login -u="$DOCKER_USERNAME_FLOWZ" -p="$DOCKER_PASSWORD_FLOWZ";
+            docker build -t pdm_backend_flowz:latest .;
+            docker images;
+            docker tag pdm_backend_flowz:latest $DOCKER_USERNAME_FLOWZ/pdm_backend_flowz:latest;
+            docker push $DOCKER_USERNAME_FLOWZ/pdm_backend_flowz:latest;
+        elif [ ${TRAVIS_BRANCH} = "develop" ]; then
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+            docker build -t pdm_backend_flowz:dev .;
+            docker images;
+            docker tag pdm_backend_flowz:dev $DOCKER_USERNAME/pdm_backend_flowz:dev;
+            docker push $DOCKER_USERNAME/pdm_backend_flowz:dev;
+        else
+            docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+            docker build -t pdm_backend_flowz:qa .;
+            docker images;
+            docker tag pdm_backend_flowz:qa $DOCKER_USERNAME/pdm_backend_flowz:qa;
+            docker push $DOCKER_USERNAME/pdm_backend_flowz:qa;
+        fi'
+    - stage: Upgrade Rancher Service
+      script:
+      - bash ./upgrade.sh
+    - stage: Finish Rancher Service
+      script:
+      - bash ./finish.sh
+
+notifications:
+  email:
+    recipients:
+      - arpitap@officebeacon.com
+      - kaushalm@officebrain.com
+      - anuj@officebrain.com
+      - naveeng@officebrain.com
+      - chirag@officebrain.com
+      - ektakaurc@officebrain.com
+    on_success: always
+    on_failure: always
