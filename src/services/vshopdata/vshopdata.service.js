@@ -2,7 +2,9 @@
 const createService = require('feathers-rethinkdb');
 const hooks = require('./vshopdata.hooks');
 
-module.exports = function (app) {
+module.exports = function () {
+  const app = this
+
   const Model = app.get('rethinkdbClient');
   const paginate = app.get('paginate');
 
