@@ -52,7 +52,7 @@ app.configure(hooks());
 app.configure(rethinkdb);
 app.configure(rest());
 app.configure(auth({ secret: config.secret }));
-// app.configure(jwt({service : "categories"}));
+app.configure(jwt({service : "categories"}));
 app.configure(jwt({service : "api/products"}));
 app.configure(jwt({service : "filters"}));
 app.configure(jwt({service : "pdm"}));

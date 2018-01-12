@@ -53,13 +53,21 @@ class Service {
       }
     }
     if (Object.keys(params.query).length == 0) {
-      throw new errors.NotFound('No parameters to search')  
+      queryBody.query = {
+        "bool" : {
+          "must": {
+            "match_all": {}
+          }
+        }
+      }
+      //  Uncomment if you wants to throw error when no search params in get request
+      // throw new errors.NotFound('No parameters to search')  
     } else {
       Object.keys(params.query).forEach(function(key){
         queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
       })
-      getAllResult = await this.getResultFromES(queryBody, params)
     }
+    getAllResult = await this.getResultFromES(queryBody, params)
     return getAllResult
   }
 
