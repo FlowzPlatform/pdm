@@ -1,7 +1,9 @@
+const vm = require('../vidMiddleware.js');
+const config = require('../../../config/default.json');
 var rpRequest = require('request')
 const jwt = require('@feathersjs/authentication-jwt');
-var jwt1 = require('jsonwebtoken');
 const auth = require('@feathersjs/authentication');
+var jwt1 = require('jsonwebtoken');
 var express = require('express')
 var app = express()
 var request = require('request')
@@ -10,8 +12,8 @@ const logintoken = ""
 module.exports = {
   before: {
     all: [
-      auth.hooks.authenticate(['jwt'])
-
+      auth.hooks.authenticate(['jwt']),
+      hook => getUsername(hook)
     ],
     find: [
 
@@ -61,7 +63,7 @@ module.exports = {
 };
 
 function webHookSubscribe (hook) {
-  console.log("=======hook call====",hook.result)
+  // console.log("=======hook call====",hook.result)
   // new Promise((resolve, reject) => {
        notifyWebHooks(hook)
   //     resolve(hook)
@@ -75,7 +77,7 @@ function notifyWebHooks (hook) {
   try {
     hook.app.service('subscribe-to-web-hooks').find().then((result) => {
       result.data.forEach((webhook) => {
-        console.log("=======notify web hook call====")
+        // console.log("=======notify web hook call====")
         let reqOptions = {
           method: 'POST',
           uri: webhook.webhookurl,
@@ -86,6 +88,17 @@ function notifyWebHooks (hook) {
       })
     })
   } catch (e) {
-    console.log("error", e)
+    console.log("product.hook.js Error :", e)
+  }
+}
+
+async function getUsername (hook) {
+  if (Object.keys(hook.params).length !== 0) {
+    await vm.check(hook.app.service('vshopdata'), hook.params.headers.vid, true)
+        .then(response => {
+          config.credOptions.username = response[0]
+          config.credOptions.password = response[1]
+          hook.params.credential = response
+        })
   }
 }

@@ -4,28 +4,25 @@ const config = require('../../../config/default.json');
 const errors = require('@feathersjs/errors');
 const feathers = require('feathers');
 const rest = require('feathers-rest');
+const vm = require('../vidMiddleware.js');
 
-var jwt1 = require('jsonwebtoken');
+var jwt = require('jsonwebtoken');
 var request = require('request');
 
 if (process.env.esUrl != '')
-    config.esUrl = process.env.esUrl
+  config.esUrl = process.env.esUrl
 if(process.env.secret != '')
-    config.secret = process.env.secret
+  config.secret = process.env.secret
 if(process.env.auth_url != '')
-    config.auth_url = process.env.auth_url
+  config.auth_url = process.env.auth_url
 if(process.env.pwd != '')
-    config.pwd = process.env.pwd
-
-var credOptions = {
-  'index' : process.env.index,
-  'username': '',
-  'password': process.env.pwd
-}
+  config.pwd = process.env.pwd
+if(process.env.index != '')
+  config.credOptions.index = process.env.index
 
 var esURL = config.esUrl
 esURL = esURL.substr(8)
-let uri = 'https://' + credOptions.username + ':' + credOptions.password + '@' + esURL + '/' + credOptions.index + '/_search'
+let uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search'
 
 class Service {
   constructor (options) {
@@ -37,17 +34,6 @@ class Service {
   }
 
   async find (params) {
-    if (params.headers.vid) {
-      await this.app.service('vshopdata').get(params.headers.vid)
-      .then(response => {
-        credOptions.username = response.esUser
-      }).catch(err => {
-          console.log(err)
-      })
-    } else {
-      throw new errors.Forbidden('Unauthorized access')
-    }
-
     let getAllResult
     let queryBody = {
       "query" : {
@@ -78,17 +64,6 @@ class Service {
   }
 
   async get (language, params) {
-    if (params.headers.vid) {
-      await this.app.service('vshopdata').get(params.headers.vid)
-      .then(response => {
-        credOptions.username = response.esUser
-      }).catch(err => {
-        console.log(err)
-      })
-    } else {
-      throw new errors.Forbidden('Unauthorized access')
-    }
-
     let queryBody = {
       "query" : {
         "bool" : {
@@ -110,27 +85,20 @@ class Service {
     if (language == undefined) {
       delete queryBody.query.bool.filter.bool.should[0].bool.must[0]
     }
-    if (!Object.keys(params.query).length == 0) {
-      Object.keys(params.query).forEach(function(key){
-        queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
-      })
+    try {
+      if (!Object.keys(params).length == 0) {
+        Object.keys(params.query).forEach(function(key){
+          queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
+        })
+      }
+    } catch (err) {
+      console.log(err) 
     }
     let searchResult = await this.getResultFromES(queryBody, params)
     return searchResult
   }
 
   async create (data, params) {
-    if (params.headers.vid) {
-      await this.app.service('vshopdata').get(params.headers.vid)
-      .then(response => {
-        credOptions.username = response.esUser
-      }).catch(err => {
-          console.log(err)
-      })
-    } else {
-      throw new errors.Forbidden('Unauthorized access')
-    }
-
     let query = ''
     let country = ''
     if (data.query !== undefined && data.query !== '') {
@@ -143,45 +111,91 @@ class Service {
   _setup(app, path) {
     var self = this;
     app.post('/' + path + '/:country',async function (req, res, err) {
-      if (err && err === 'router') {
-        return done(err)
+      let flag = false
+      if (err && err === 'route') {
+        return done()
       }
-      let searchResult = await self.getDataFromES(req.body.query, req.feathers, req.params.country)
-      console.log('info: after: pdm - Method: custom create')
-      res.send(searchResult)
+      jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
+        if(err) {
+          flag = true
+        }
+      })
+      await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
+      .then(response => {
+        config.credOptions.username = response[0]
+        config.credOptions.password = response[1]
+        req.params.credential = response
+      })
+      if (flag) {
+        var er = new errors.NotAuthenticated('No auth token')
+        res.send(er)
+      } else if (req.params.credential[2]) {
+        res.send(req.params.credential[2])
+      } else {
+        let searchResult = await self.getDataFromES(req.body.query, req.feathers, req.params.country)
+        console.log('info: after: pdm - Method: custom create')
+        res.send(searchResult)
+      }
     })
     app.post('/:index//:action', async function (req, res, err) {
       var country
+      let flag = false
       if (err & err === 'router') {
         return done(err)
       }
-      let searchResult = await self.get(country, {headers: {vid: req.feathers.headers.vid}, query: req.query})
-      res.send(searchResult)
+      jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
+        if(err) {
+          flag = true
+        }
+      })
+      await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
+      .then(response => {
+        config.credOptions.username = response[0]
+        config.credOptions.password = response[1]
+        req.params.credential = response
+      })
+      if (flag) {
+        var er = new errors.NotAuthenticated('No auth token')
+        res.send(er)
+      } else if (req.params.credential[2]) {
+        res.send(req.params.credential[2])
+      } else {
+        let searchResult = await self.get(country, {query: req.query})
+        console.log('info: after: pdm - Method: // custom create')
+        res.send(searchResult)
+      }
     })
     app.post('/:index/', async function (req, res, err) {
-      var country = 'US'
+      let flag = false
       if (err & err === 'router') {
         return done(err)
       }
-      let searchResult = await self.get(country, req.feathers)
-      res.send(searchResult)
+      jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
+        if(err) {
+          flag = true
+        }
+      })
+      await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
+      .then(response => {
+        config.credOptions.username = response[0]
+        config.credOptions.password = response[1]
+        req.params.credential = response
+      })
+      if (flag) {
+        var er = new errors.NotAuthenticated('No auth token')
+        res.send(er)
+      } else if (req.params.credential[2]) {
+        res.send(req.params.credential[2])
+      } else {
+        let searchResult = await self.get(req.params.index, req.feathers)
+        console.log('info: after: pdm - Method: / custom create')
+        res.send(searchResult)
+      }
     })
   }
-
-  // getAllResultFromES(params) {
-  //   return new Promise((resolve, reject) => {
-  //     request({method: 'post', url: uri}, function (error, response, body) {
-  //       if (error) {
-  //         resolve(error)
-  //       } else {
-  //         resolve(response.body)
-  //       }
-  //     })
-  //   })
-  // }
   
   getResultFromES(query, params) {
-    uri = 'https://' + credOptions.username + ':' + credOptions.password + '@' + esURL + '/' + credOptions.index + '/_search'
+    uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search'
     return new Promise((resolve, reject) => {
       request({method: 'post', url: uri, json: true, body: query}, function (error, response, body) {
         if (error) {
@@ -194,17 +208,6 @@ class Service {
   }
 
   async getDataFromES (query, params, country) {
-    if (params.headers.vid) {
-      await this.app.service('vshopdata').get(params.headers.vid)
-      .then(response => {
-        credOptions.username = response.esUser
-      }).catch(err => {
-          console.log(err)
-      })
-    } else {
-      throw new errors.Forbidden('Unauthorized access')
-    }
-
     let queryBody = {
       "query" : {
         "bool" : {
