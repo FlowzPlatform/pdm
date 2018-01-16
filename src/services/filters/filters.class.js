@@ -8,6 +8,7 @@ if(process.env.auth_url != '')
     config.auth_url = process.env.auth_url
 if(process.env.pwd != '')
     config.pwd = process.env.pwd
+    
 class Service {
   constructor (options) {
     this.options = options || {};
@@ -185,8 +186,8 @@ class Service {
 async getResultFromES(bodyData,params) {
   let elasticsearch = this.options.elasticsearch;
   let host = this.options.esUrl
-  let userName = params.username
-  let passWord = config.pwd
+  let userName = config.credOptions.username
+  let passWord = config.credOptions.password
   const esClient = new elasticsearch.Client({
     host: host,
     httpAuth:userName+":"+passWord
