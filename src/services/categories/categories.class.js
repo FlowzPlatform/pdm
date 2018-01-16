@@ -38,7 +38,6 @@ find (params) {
 }
 
 async getBySiteId (site_id, user) {
-  console.log("*******",site_id,user)
   let bodyData = {
     "query": {
       "bool" : {
@@ -54,7 +53,6 @@ async getBySiteId (site_id, user) {
 }
 
 async getByCategoryId (category_id,user) {
-  console.log("*******",category_id,user)
   let bodyData = {
     "query": {
       "bool" : {
@@ -90,7 +88,6 @@ async getAllSites(user) {
 }
 
 async getAllSlugs(site_id,user) {
-  console.log("!!!!!!!!getallslugs",site_id,user)
   let bodyData = {
     "query": {
       "bool" : {
@@ -106,7 +103,6 @@ async getAllSlugs(site_id,user) {
 }
 
 async getSlugs(user) {
-  console.log("!!!!!!!!getslugs",user)
   let bodyData = {
     "query": {
       "bool" : {
@@ -131,7 +127,7 @@ async getSlugs(user) {
         app.post('/' + path + '/*/sites/:siteId/createCategory', async function (req, res, err) {
           // let request
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           let site_id = req.params.siteId
           req.body["user"] = username
@@ -151,19 +147,18 @@ async getSlugs(user) {
 
         app.post('/' + path + '/*/createCategory',async function (req, res,err) {
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           // let username =  config.credOptions.username
           req.body["user"] = username
           req.body["vid"] = "sup5-1"
           let response = await self.createCategoryToES(username,req)
-          console.log("_____________",response);
           res.send(response)
         });
 
         app.get('/' + path + '/*/sites/:siteId', async function (req, res,err) {
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           let site_id = req.params.siteId
           // let username =  await self.check(req)
@@ -174,7 +169,7 @@ async getSlugs(user) {
 
         app.get('/' + path + '/*/sites', async function (req, res,err) {
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           // let username =  await self.check(req)
           // let user = username
@@ -183,36 +178,32 @@ async getSlugs(user) {
         });
 
         app.post('/' + path + '/*/sites',async function (req,res,err) {
-          console.log("########")
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           // let username =  await self.check(req)
           req.body["user"] = username
           req.body["vid"] = "sup5-1"
           let response = await self.createCategoryToES(username,req)
-          console.log("__________",response)
           res.send(response)
         });
 
 
         app.post('/' + path + '/*/sites/:siteId',async function (req,res,err) {
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           req.body["site_id"] = req.params.siteId
           // let username =  await self.check(req)
           req.body["user"] = username
           req.body["vid"] = "sup5-1"
           let response = await self.createCategoryToES(username,req)
-          console.log("__________",response)
           res.send(response)
         });
 
         app.get('/' + path + '/*/sites/:siteId/slugs/*',async function (req,res,err) {
-          console.log("%%%%%%%%%")
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           let site_id = req.params.siteId
           // let username =  await self.check(req)
@@ -222,9 +213,8 @@ async getSlugs(user) {
         });
 
         app.get('/' + path + '/*/sites/slugs/*',async function (req,res,err) {
-          console.log("%%%%%%%%%")
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           // let username =  await self.check(req)
           // let user = username
@@ -233,101 +223,29 @@ async getSlugs(user) {
         });
 
         app.post('/' + path + '/*/sites/slugs/*',async function (req,res,err) {
-          console.log("@@@@@@@@@@@@")
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           // let username =  await self.check(req)
           req.body["user"] = username
           req.body["vid"] = "sup5-1"
           let response = await self.saveSlugToES(username,req)
-          console.log("__________",response)
           res.send(response)
         });
 
         app.post('/' + path + '/*/sites/:siteId/slugs/*',async function (req,res,err) {
-          console.log("@@@@@@@@@@@@")
           if(err){
-            console.log(err)
+            console.log('Error :', err)
           }
           req.body["site_id"] = req.params.siteId
           // let username =  await self.check(req)
           req.body["user"] = username
           req.body["vid"] = "sup5-1"
           let response = await self.saveSlugToES(username,req)
-          console.log("__________",response)
           res.send(response)
         });
 
       }
-
-      // S G Zala
-
-    // async check (authorization, vshopdata, vid, req) {
-    //   let flag = false
-    //   let Unauthorized, NotAuthenticated
-    //   await jwt.verify(authorization, config.secret, function(err, decoded) {
-    //     if(err) {
-    //       flag = true
-    //     }
-    //   })
-    //   await vm.check(vshopdata, vid, false)
-    //   .then(response => {
-    //     config.credOptions.username = response[0]
-    //     config.credOptions.password = response[1]
-    //     req.params.credential = response
-    //   })
-    //   if (flag) {
-    //     NotAuthenticated = new errors.NotAuthenticated('No auth token')
-    //     return NotAuthenticated
-    //   } else if (req.params.credential[2]) {
-    //     return req.params.credential[2]
-    //   } else {
-    //     return req
-    //   }
-    // }
-
-    // Ektakaur
-      // async check (req) {
-
-      //  console.log(req.headers.authorization);
-      //  var decoded = jwt1.verify(req.headers.authorization, config.secret);
-      //  console.log(decoded)
-      //  var userid = decoded.userId
-      //  console.log("******************",userid) // bar
-      //  let username = await this.getUserById(req,userid)
-      //  return username
-
-      //  }
-
-
-      //  getUserById (req,userid) {
-      //    return new Promise((resolve,reject)=>{
-      //      let url = config.auth_url + userid
-      //      var requestObj = {
-      //        url: url,
-      //        headers: {
-      //          'Authorization':  req.headers.authorization,
-      //          'Accept': 'application/json'
-      //        }
-      //      }
-
-      //       request(requestObj,function (err, response) {
-      //        if (err){
-      //          console.log(err)
-      //        }
-      //        else{
-      //          let res = response.body
-      //          let parsedResponse = JSON.parse(res)
-      //          console.log(parsedResponse.data);
-      //           username = parsedResponse.data[0].username
-      //          resolve(username)
-      //        }
-      //      })
-      //    })
-
-      //  }
-
 
   async getResultFromES(bodyData,params) {
     let elasticsearch = this.options.elasticsearch;
@@ -396,26 +314,24 @@ async getSlugs(user) {
      httpAuth:userName+":"+passWord
    })
 
-   var i = new Promise((resolve,reject)=>{
-   if(req.body.id != 'undefined'){
-     let res = esClient.delete({
-       index: 'categories',
-       type: 'preferences',
-       id: req.body.id
-     })
-       resolve(res)
-       delete req.body['id']
-     }
- })
-   // console.log("++++++++++save category called")
-   // console.log("****************",req.body)
-   let response = esClient.index({
-     index: 'categories',
-     type: 'preferences',
-     body: req.body
-   })
-   return Promise.resolve(response)
- }
+  var i = new Promise((resolve,reject)=>{
+    if(req.body.id != 'undefined'){
+      let res = esClient.delete({
+        index: 'categories',
+        type: 'preferences',
+        id: req.body.id
+      })
+      resolve(res)
+      delete req.body['id']
+    }
+  })
+  let response = esClient.index({
+    index: 'categories',
+    type: 'preferences',
+    body: req.body
+  })
+  return Promise.resolve(response)
+}
 
  saveSlugToES(username,req) {
   let elasticsearch = this.options.elasticsearch;

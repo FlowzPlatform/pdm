@@ -41,14 +41,6 @@ module.exports = function () {
     paginate
   };
 
-  // app.configure(swagger({
-  //     docsPath: '/docs',
-  //     prefix: /api\/v\d\//,
-  //     versionPrefix: /v\d/,
-  //     uiIndex: true,
-  // }))
-
-
   // Initialize our service with any options it requires
   app.use('/api/products', createService(options));
   // app.use('/api/products', productService);
@@ -57,70 +49,4 @@ module.exports = function () {
   const service = app.service('api/products');
 
   service.hooks(hooks);
-
-  // console.log(userid)
-  // service.hooks({
-  //   before: {
-  //       all: [
-  //        hook => check(hook),
-  //        function(hook){
-  //        hook.params.username = hook.data["username"]
-  //      }
-  //     ],
-  //     //  find: function(hook){
-  //     //      hook.params.username = hook.data["username"]
-  //     //  },
-  //      get: [
-
-  //         //  hook => console.log("&&&&&&&&&&&&&",hook)
-  //      ]
-
-  //   },
-  //   after: {
-
-  //   }
-
-  // });
 };
-
-// Ektakaur
-
-// async function check(hook){
-
-// //  console.log(hook.params.headers.authorization);
-//  var decoded = jwt1.verify(hook.params.headers.authorization, config.secret);
-// //  console.log(decoded)
-//  var userid = decoded.userId
-// //  console.log("******************",userid) // bar
-//  let username = await getUserById(hook,userid)
-//  hook.data["username"] = username
-//  return hook
-
-// }
-
-// function getUserById(hook,userid){
-//   return new Promise((resolve,reject)=>{
-//     url = config.auth_url + userid
-//     var requestObj = {
-//       url: url,
-//       headers: {
-//         'Authorization':  hook.params.headers.authorization,
-//         'Accept': 'application/json'
-//       }
-//     }
-
-//      request(requestObj,function (err, response) {
-//       if (err){
-//         console.log(err)
-//       }
-//       else{
-//         res = response.body
-//         parsedResponse = JSON.parse(res)
-//         console.log(parsedResponse.data);
-//         username = parsedResponse.data[0].username
-//         resolve(username)
-//       }
-//     })
-//   })
-
-// }

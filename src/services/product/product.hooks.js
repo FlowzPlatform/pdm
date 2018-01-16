@@ -15,16 +15,8 @@ module.exports = {
       auth.hooks.authenticate(['jwt']),
       hook => getUsername(hook)
     ],
-    find: [
-
-    //  hook => console.log("find")
-    ],
-    get: [
-    //  hook => console.log("get")
-      //hook => console.log('before find hook 1 ran'),
-      //hook => webHookSubscribe(hook),
-      //hook => console.log('before find hook 2 ran')
-    ],
+    find: [],
+    get: [],
     create: [],
     update: [],
     patch: [],
@@ -32,20 +24,10 @@ module.exports = {
   },
 
   after: {
-    all: [
-      // verify()
-      //  hook => check(hook)
-      //  hook => console.log("&&&&&&&&&&&&&",hook)
-
-    ],
+    all: [],
     find: [],
-    get: [
-    //hook => console.log('after get hook 1 ran'),
-    // hook => webHookSubscribe(hook),
-    //hook => console.log('after get hook 2 ran')
-    ],
-    create: [
-    ],
+    get: [],
+    create: [],
     update: [],
     patch: [],
     remove: []
@@ -63,12 +45,7 @@ module.exports = {
 };
 
 function webHookSubscribe (hook) {
-  // console.log("=======hook call====",hook.result)
-  // new Promise((resolve, reject) => {
-       notifyWebHooks(hook)
-  //     resolve(hook)
-  // })
-  // return hook
+  notifyWebHooks(hook)
 }
 
 
@@ -77,7 +54,6 @@ function notifyWebHooks (hook) {
   try {
     hook.app.service('subscribe-to-web-hooks').find().then((result) => {
       result.data.forEach((webhook) => {
-        // console.log("=======notify web hook call====")
         let reqOptions = {
           method: 'POST',
           uri: webhook.webhookurl,
@@ -88,7 +64,7 @@ function notifyWebHooks (hook) {
       })
     })
   } catch (e) {
-    console.log("product.hook.js Error :", e)
+    console.log("Product.hook.js Error :", e)
   }
 }
 
