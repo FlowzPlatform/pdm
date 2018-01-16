@@ -4,7 +4,9 @@ let errors = require('@feathersjs/errors') ;
 module.exports = {
   before: {
     all: [],
-    find: [],
+    find: [
+      hook => getAllDataByUser(hook)
+    ],
     get: [],
     create: [
       hook => create(hook)
@@ -40,6 +42,15 @@ module.exports = {
 
 let c = ''
 let userData = ''
+
+async function getAllDataByUser(hook){
+  let res = await validateUser(hook);
+  if(res.code == 401){
+    throw new errors.NotAuthenticated('Invalid token');
+  }else{
+    hook.params.query.userId = userData.data._id
+  }
+}
 
 async function create(hook){
   let res = await validateUser(hook);
@@ -103,10 +114,11 @@ validateUser = data =>{
   return new Promise((resolve , reject) =>{
     rp(options)
     .then(function (parsedBody) {
-      userData = parsedBody[0]
+      userData = JSON.parse(parsedBody)
       resolve(parsedBody)
     })
     .catch(function (err) {
+      console.log(err)
       resolve({"code" : 401 })
     });
   })
