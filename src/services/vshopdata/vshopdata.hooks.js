@@ -1,5 +1,6 @@
 var rp = require('request-promise');
 let errors = require('@feathersjs/errors') ;
+const config = require('../../../config/default.json');
 
 module.exports = {
   before: {
@@ -68,9 +69,9 @@ async function after(hook){
 
     let body = {
       "connection" : {
-        "host": "47.254.27.134",
-        "port": 28015,
-        "db": "importDataJobqueue"
+        "host": config.jobQueue.host,
+        "port": config.jobQueue.port,
+        "db": config.jobQueue.db
       },
       "queue" : {
         "name": "importData"
@@ -84,7 +85,7 @@ async function after(hook){
 
     let response = {
       method: 'POST',
-      url: 'http://localhost:5000/job/create',
+      url: config.jobQueue.url,
       json: true,
       body: body
     }

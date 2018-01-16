@@ -16,6 +16,12 @@
       }
     ]
   },
+  "jobQueue": {
+    "url": "",
+    "db": "",
+    "host": "",
+    "port": ""
+  },
   "credOptions": {
     "index" : "",
     "username": "",

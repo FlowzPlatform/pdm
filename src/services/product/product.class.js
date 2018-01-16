@@ -24,7 +24,6 @@ class Service {
   }
   
   async find (params) {
-    // console.log("called....")
     let region = params.query.region
     let bodyData = {
       "query" : {
@@ -138,51 +137,9 @@ _setup(app, path) {
 }
 
 get (region,params) {
-  // console.log("get.........")
-  // console.log("@@@@@@@@@@@",bodyData)
   let searchResult = this.getDataFromES(region, params)
   return Promise.resolve(searchResult)
 }
-
-//Ektakaur
-
-// async check (req,bodyData) {
-//   //  console.log(req.headers.authorization);
-//    var decoded = jwt1.verify(req.headers.authorization, config.secret);
-//   //  console.log(decoded)
-//    var userid = decoded.userId
-//   //  console.log("******************",userid) // bar
-//    let username = await this.getUserById(req,userid)
-//    return username
-// }
-
-//Ektakaur
-
-// async getUserById (req,userid) {
-//   return new Promise((resolve,reject)=>{
-//     let url = config.auth_url + userid
-//     var requestObj = {
-//       url: url,
-//       headers: {
-//         'Authorization':  req.headers.authorization,
-//         'Accept': 'application/json'
-//       }
-//     }
-//     request(requestObj, function (err, response) {
-//       if (err){
-//         resolve(err)
-//       }
-//       else{
-//         let res = response.body
-//         let parsedResponse = JSON.parse(res)
-//         console.log(parsedResponse.data);
-//         username = parsedResponse.data[0].username
-//         resolve(username)
-//       }
-//     })
-//   })
-// }
-
 
    async getResultFromES (bodyData,params) {
 
@@ -226,7 +183,6 @@ get (region,params) {
   }
 
   async getDataFromES (region, params, query) {
-    // console.log("post/get.........")
     let bodyData = {
       "query" : {
         "bool" : {
@@ -265,7 +221,6 @@ get (region,params) {
       bodyData.query.bool.must = query
     }
 
-    // console.log("@@@@@@@@@@@", bodyData.query.bool)
       let searchResult = this.getResultFromES(bodyData, params)
       return Promise.resolve(searchResult)
   }

@@ -1,13 +1,13 @@
 const vm = require('../vidMiddleware.js');
 const config = require('../../../config/default.json');
-const jwt = require('@feathersjs/authentication-jwt');
-const auth = require('@feathersjs/authentication');
+// const jwt = require('@feathersjs/authentication-jwt');
+// const auth = require('@feathersjs/authentication');
 const errors = require('@feathersjs/errors');
 
 module.exports = {
   before: {
     all: [
-      auth.hooks.authenticate(['jwt']),
+      // auth.hooks.authenticate(['jwt']),
       hook => getUsername(hook)
     ],
     find: [],
