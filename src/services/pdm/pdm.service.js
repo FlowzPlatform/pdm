@@ -17,6 +17,8 @@ if(process.env.auth_url != '')
     config.auth_url = process.env.auth_url
 if(process.env.pwd != '')
     config.pwd = process.env.pwd
+if(process.env.index != '')
+    config.credOptions.index = process.env.index
 
 module.exports = function () {
     const app = this;
