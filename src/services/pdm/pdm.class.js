@@ -2,8 +2,9 @@
 /* eslint-disable no-unused-vars */
 const config = require('../../../config/default.json');
 const errors = require('@feathersjs/errors');
-const feathers = require('feathers');
-const rest = require('feathers-rest');
+const feathers = require('@feathersjs/feathers');
+const express = require('@feathersjs/express');
+const rest = require('@feathersjs/express/rest');
 const vm = require('../vidMiddleware.js');
 
 var jwt = require('jsonwebtoken');

@@ -4,14 +4,18 @@ const compress = require('compression');
 const cors = require('cors');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-const feathers = require('feathers');
-const configuration = require('feathers-configuration');
-const jwt = require('@feathersjs/authentication-jwt');
-const hooks = require('feathers-hooks');
-const rest = require('feathers-rest');
-const socketio = require('feathers-socketio')
+const feathers = require('@feathersjs/feathers');
 
-const auth = require('feathers-authentication');
+const express = require('@feathersjs/express');
+
+const configuration = require('@feathersjs/configuration');
+const rest = require('@feathersjs/express/rest');
+const socketio = require('@feathersjs/socketio')
+
+
+const jwt = require('@feathersjs/authentication-jwt');
+const auth = require('@feathersjs/authentication');
+const hooks = require('feathers-hooks');
 const config = require('../config/default.json');
 
 if (process.env.esUrl != '')
@@ -33,11 +37,18 @@ const services = require('./services');
 const appHooks = require('./app.hooks');
 const rethinkdb = require('./rethinkdb');
 
-const app = feathers();
+const app = express(feathers());
 // Load app configuration
 app.configure(configuration(path.join(__dirname, '..')))
 
 // Enable CORS, security, compression, favicon and body parsing
+app.use(function(req, res, next) {
+    this.app = app;
+    this.apiHeaders = req.headers ;
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 app.use(cors());
 app.use(helmet());
 app.use(compress());
@@ -45,10 +56,8 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 // Host the public folder
-app.use('/', feathers.static(app.get('public')));
+app.use('/', express.static(app.get('public')));
 
-// Set up Plugins and providers
-app.configure(hooks());
 app.configure(rethinkdb);
 app.configure(rest());
 app.configure(auth({ secret: config.secret }));
