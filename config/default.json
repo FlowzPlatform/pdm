@@ -16,6 +16,12 @@
       }
     ]
   },
+  "jobQueue": {
+    "url": "",
+    "db": "",
+    "host": "",
+    "port": ""
+  },
   "credOptions": {
     "index" : "",
     "username": "",
@@ -25,5 +31,6 @@
   "esUrl": "xxxxx",
   "secret": "xxxxxxxxxxx",
   "auth_url":"xxxxxx",
-  "pwd": "xxxxxx"
+  "pwd": "xxxxxx",
+  "wsPort": "4038"
 }

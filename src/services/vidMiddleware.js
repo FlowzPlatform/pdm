@@ -13,7 +13,7 @@ exports.check = async function getUsername(serviceObject, vid, flag) { // flag :
   }
   if(flag && !vid) {
     throw new errors.Forbidden('Unauthorized access')
-  } else if (!flag && !vid){
+  } else if (!flag && !vid) {
     // Error will catch at req.params.credential[2] on other side as res.send(req.params.credential[2]) 
     return [user, password, new errors.Forbidden('Unauthorized access')]
   } else {

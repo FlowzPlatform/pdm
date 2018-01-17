@@ -101,7 +101,7 @@ class Service {
         })
       }
     } catch (err) {
-      console.log(err) 
+      console.log('Error :', err) 
     }
     let searchResult = await this.getResultFromES(queryBody, params)
     return searchResult
@@ -120,25 +120,26 @@ class Service {
   _setup(app, path) {
     var self = this;
     app.post('/' + path + '/:country',async function (req, res, err) {
-      let flag = false
+      // let flag = false
       if (err && err === 'route') {
         return done()
       }
-      jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
-        if(err) {
-          flag = true
-        }
-      })
+      // jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
+      //   if(err) {
+      //     flag = true
+      //   }
+      // })
       await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
       .then(response => {
         config.credOptions.username = response[0]
         config.credOptions.password = response[1]
         req.params.credential = response
       })
-      if (flag) {
-        var er = new errors.NotAuthenticated('No auth token')
-        res.send(er)
-      } else if (req.params.credential[2]) {
+      // if (flag) {
+      //   var er = new errors.NotAuthenticated('No auth token')
+      //   res.send(er)
+      // } else 
+      if (req.params.credential[2]) {
         res.send(req.params.credential[2])
       } else {
         let searchResult = await self.getDataFromES(req.body.query, req.feathers, req.params.country)
@@ -147,29 +148,29 @@ class Service {
       }
     })
     app.post('/:index//:action', async function (req, res, err) {
-      var country
-      let flag = false
+      // let flag = false
       if (err & err === 'router') {
         return done(err)
       }
-      jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
-        if(err) {
-          flag = true
-        }
-      })
+      // jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
+      //   if(err) {
+      //     flag = true
+      //   }
+      // })
       await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
       .then(response => {
         config.credOptions.username = response[0]
         config.credOptions.password = response[1]
         req.params.credential = response
       })
-      if (flag) {
-        var er = new errors.NotAuthenticated('No auth token')
-        res.send(er)
-      } else if (req.params.credential[2]) {
+      // if (flag) {
+      //   var er = new errors.NotAuthenticated('No auth token')
+      //   res.send(er)
+      // } else
+      if (req.params.credential[2]) {
         res.send(req.params.credential[2])
       } else {
-        let searchResult = await self.get(country, {query: req.query})
+        let searchResult = await self.find({headers: req.feathers.headers, query: req.query})
         console.log('info: after: pdm - Method: // custom create')
         res.send(searchResult)
       }
@@ -179,21 +180,22 @@ class Service {
       if (err & err === 'router') {
         return done(err)
       }
-      jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
-        if(err) {
-          flag = true
-        }
-      })
+      // jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
+      //   if(err) {
+      //     flag = true
+      //   }
+      // })
       await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
       .then(response => {
         config.credOptions.username = response[0]
         config.credOptions.password = response[1]
         req.params.credential = response
       })
-      if (flag) {
-        var er = new errors.NotAuthenticated('No auth token')
-        res.send(er)
-      } else if (req.params.credential[2]) {
+      // if (flag) {
+      //   var er = new errors.NotAuthenticated('No auth token')
+      //   res.send(er)
+      // } else
+      if (req.params.credential[2]) {
         res.send(req.params.credential[2])
       } else {
         let searchResult = await self.get(req.params.index, req.feathers)
