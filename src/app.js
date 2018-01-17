@@ -10,8 +10,7 @@ const express = require('@feathersjs/express');
 
 const configuration = require('@feathersjs/configuration');
 const rest = require('@feathersjs/express/rest');
-const socketio = require('@feathersjs/socketio')
-
+const socketio = require('@feathersjs/socketio');
 
 const jwt = require('@feathersjs/authentication-jwt');
 const auth = require('@feathersjs/authentication');
@@ -30,14 +29,15 @@ if(process.env.domainkey != '')
   config.domainKey = process.env.domainkey
 if(process.env.index != '')
   config.credOptions.index = process.env.index
-
-
+if (process.env.wsport != '') 
+  config.wsPort = process.env.wsport
+  
 const middleware = require('./middleware');
 const services = require('./services');
 const appHooks = require('./app.hooks');
 const rethinkdb = require('./rethinkdb');
-
-const app = express(feathers());
+  
+  const app = express(feathers());
 // Load app configuration
 app.configure(configuration(path.join(__dirname, '..')))
 
@@ -60,6 +60,11 @@ app.use('/', express.static(app.get('public')));
 
 app.configure(rethinkdb);
 app.configure(rest());
+// app.configure(socketio());
+app.configure(socketio(config.wsPort, {
+    wsEngine: 'uws',
+    origin: '*.' + config.domainKey + ':*'
+  }));
 app.configure(auth({ secret: config.secret }));
 app.configure(jwt({service : "categories"}));
 app.configure(jwt({service : "api/products"}));
@@ -71,10 +76,6 @@ app.configure(services);
 app.configure(middleware);
 app.hooks(appHooks);
 
-app.configure(socketio({
-    wsEngine: 'uws',
-    origin: '*.' + config.domainKey + ':*'
-  }));
 
 
 module.exports = app;
