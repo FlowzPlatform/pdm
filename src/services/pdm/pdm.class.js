@@ -148,7 +148,6 @@ class Service {
       }
     })
     app.post('/:index//:action', async function (req, res, err) {
-      var country
       // let flag = false
       if (err & err === 'router') {
         return done(err)
@@ -167,11 +166,11 @@ class Service {
       // if (flag) {
       //   var er = new errors.NotAuthenticated('No auth token')
       //   res.send(er)
-      // } else 
+      // } else
       if (req.params.credential[2]) {
         res.send(req.params.credential[2])
       } else {
-        let searchResult = await self.get(country, {query: req.query})
+        let searchResult = await self.find({headers: req.feathers.headers, query: req.query})
         console.log('info: after: pdm - Method: // custom create')
         res.send(searchResult)
       }
