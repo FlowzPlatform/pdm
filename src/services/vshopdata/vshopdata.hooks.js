@@ -1,10 +1,14 @@
 var rp = require('request-promise');
 let errors = require('@feathersjs/errors') ;
 const config = require('../../../config/default.json');
+const jwt = require('@feathersjs/authentication-jwt');
+const auth = require('@feathersjs/authentication');
 
 module.exports = {
   before: {
-    all: [],
+    all: [
+      auth.hooks.authenticate(['jwt'])
+    ],
     find: [],
     get: [],
     create: [
