@@ -1,8 +1,11 @@
-
+const jwt = require('@feathersjs/authentication-jwt');
+const auth = require('@feathersjs/authentication');
 
 module.exports = {
   before: {
-    all: [],
+    all: [
+      auth.hooks.authenticate(['jwt'])
+    ],
     find: [],
     get: [],
     create: [],

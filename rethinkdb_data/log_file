@@ -1,0 +1,16 @@
+2018-01-23T15:37:28.745923762 0.023900s notice: Recursively removing directory /home/software/sanjay/80015/PROJECT/pdm/rethinkdb_data/tmp
+2018-01-23T15:37:28.755572546 0.033552s notice: Initializing directory /home/software/sanjay/80015/PROJECT/pdm/rethinkdb_data
+2018-01-23T15:37:28.755721296 0.033696s info: Creating a default database for your convenience. (This is because you ran 'rethinkdb' without 'create', 'serve', or '--join', and the directory '/home/software/sanjay/80015/PROJECT/pdm/rethinkdb_data' did not already exist or is empty.)
+2018-01-23T15:37:28.755799342 0.033774s notice: Running rethinkdb 2.3.5 (GCC 5.4.0)...
+2018-01-23T15:37:28.763914507 0.041893s notice: Running on Linux 4.13.0-30-generic x86_64
+2018-01-23T15:37:28.764012070 0.041987s notice: Loading data from directory /home/software/sanjay/80015/PROJECT/pdm/rethinkdb_data
+2018-01-23T15:37:28.864054528 0.142033s info: Automatically using cache size of 2453 MB
+2018-01-23T15:37:28.864972107 0.142946s notice: Listening for intracluster connections on port 29015
+2018-01-23T15:37:28.866438164 0.144413s notice: Listening for client driver connections on port 28015
+2018-01-23T15:37:28.866605147 0.144579s notice: Listening for administrative HTTP connections on port 8080
+2018-01-23T15:37:28.866609791 0.144584s notice: Listening on cluster addresses: 127.0.0.1, 127.0.1.1, ::1
+2018-01-23T15:37:28.866618586 0.144593s notice: Listening on driver addresses: 127.0.0.1, 127.0.1.1, ::1
+2018-01-23T15:37:28.866622979 0.144597s notice: Listening on http addresses: 127.0.0.1, 127.0.1.1, ::1
+2018-01-23T15:37:28.866631164 0.144605s notice: To fully expose RethinkDB on the network, bind to all addresses by running rethinkdb with the `--bind all` command line option.
+2018-01-23T15:37:28.866639374 0.144613s notice: Server ready, "OBLAP_51_bax" 3af0eff6-c0b8-4966-afa5-6e84ba709383
+2018-01-23T15:37:30.132868241 1.410843s notice: A newer version of the RethinkDB server is available: 2.3.6. You can read the changelog at <https://github.com/rethinkdb/rethinkdb/releases>.
