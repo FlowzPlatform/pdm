@@ -2,9 +2,8 @@
 /* eslint-disable no-unused-vars */
 const config = require('../../../config/default.json');
 const errors = require('@feathersjs/errors');
-const feathers = require('@feathersjs/feathers');
-const express = require('@feathersjs/express');
-const rest = require('@feathersjs/express/rest');
+const feathers = require('feathers');
+const rest = require('feathers-rest');
 const vm = require('../vidMiddleware.js');
 
 var jwt = require('jsonwebtoken');
@@ -21,6 +20,8 @@ if(process.env.pwd != '')
 if(process.env.index != '')
   config.credOptions.index = process.env.index
 
+let skip = 0
+let limit = 10
 var esURL = config.esUrl
 esURL = esURL.substr(8)
 let uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search'
@@ -35,6 +36,16 @@ class Service {
   }
 
   async find (params) {
+    if (params.query.$skip != undefined && params.query.$skip != '') {
+      skip = parseInt(params.query.$skip)
+    } else {
+      skip = 0
+    }
+    if (params.query.$limit != undefined && params.query.$limit != '') {
+      limit = parseInt(params.query.$limit)
+    } else {
+      limit = 10
+    }
     let getAllResult
     let queryBody = {
       "query" : {
@@ -53,26 +64,48 @@ class Service {
         }
       }
     }
-    if (Object.keys(params.query).length == 0) {
-      queryBody.query = {
-        "bool" : {
-          "must": {
-            "match_all": {}
+    try {
+      if (Object.keys(params.query).length == 0) {
+        queryBody.query = {
+          "bool" : {
+            "must": {
+              "match_all": {}
+            }
           }
         }
+        //  Uncomment if you wants to throw error when no search params in get request
+        // throw new errors.NotFound('No parameters to search')  
+      } else {
+        Object.keys(params.query).forEach(function(key){
+          if ([key] != 'source' && [key] != '$skip' && [key] != '$limit') {
+            [key] == 'sku' ? queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match_phrase" : {[key] : params.query[key]} }) : queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
+          } else {
+            let array
+            if (params.query.source != '' && params.query.source != undefined) {
+              array = params.query.source.split(",").map(String)
+            }
+            queryBody._source = array
+          }
+        })
       }
-      //  Uncomment if you wants to throw error when no search params in get request
-      // throw new errors.NotFound('No parameters to search')  
-    } else {
-      Object.keys(params.query).forEach(function(key){
-        queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
-      })
+    } catch (err) {
+      console.log('Error Catch : ', err) 
     }
     getAllResult = await this.getResultFromES(queryBody, params)
     return getAllResult
   }
 
   async get (language, params) {
+    if (params.query.$skip != undefined && params.query.$skip != '') {
+      skip = parseInt(params.query.$skip)
+    } else {
+      skip = 0
+    }
+    if (params.query.$limit != undefined && params.query.$limit != '') {
+      limit = parseInt(params.query.$limit)
+    } else {
+      limit = 10
+    }
     let queryBody = {
       "query" : {
         "bool" : {
@@ -97,11 +130,19 @@ class Service {
     try {
       if (!Object.keys(params).length == 0) {
         Object.keys(params.query).forEach(function(key){
-          queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
+          if ([key] != 'source' && [key] != '$skip' && [key] != '$limit') {
+            [key] == 'sku' ? queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match_phrase" : {[key] : params.query[key]} }) : queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
+          } else {
+            let array
+            if (params.query.source != '' && params.query.source != undefined) {
+              array = params.query.source.split(",").map(String)
+            }
+            queryBody._source = array
+          }
         })
       }
     } catch (err) {
-      console.log('Error :', err) 
+      console.log('Error Catch : ', err) 
     }
     let searchResult = await this.getResultFromES(queryBody, params)
     return searchResult
@@ -142,12 +183,14 @@ class Service {
       if (req.params.credential[2]) {
         res.send(req.params.credential[2])
       } else {
+        req.feathers.query = req.query
         let searchResult = await self.getDataFromES(req.body.query, req.feathers, req.params.country)
         console.log('info: after: pdm - Method: custom create')
         res.send(searchResult)
       }
     })
     app.post('/:index//:action', async function (req, res, err) {
+      var country
       // let flag = false
       if (err & err === 'router') {
         return done(err)
@@ -166,17 +209,17 @@ class Service {
       // if (flag) {
       //   var er = new errors.NotAuthenticated('No auth token')
       //   res.send(er)
-      // } else
+      // } else 
       if (req.params.credential[2]) {
         res.send(req.params.credential[2])
       } else {
-        let searchResult = await self.find({headers: req.feathers.headers, query: req.query})
+        let searchResult = await self.get(country, {query: req.query})
         console.log('info: after: pdm - Method: // custom create')
         res.send(searchResult)
       }
     })
     app.post('/:index/', async function (req, res, err) {
-      let flag = false
+      // let flag = false
       if (err & err === 'router') {
         return done(err)
       }
@@ -194,7 +237,7 @@ class Service {
       // if (flag) {
       //   var er = new errors.NotAuthenticated('No auth token')
       //   res.send(er)
-      // } else
+      // } else 
       if (req.params.credential[2]) {
         res.send(req.params.credential[2])
       } else {
@@ -206,7 +249,7 @@ class Service {
   }
   
   getResultFromES(query, params) {
-    uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search'
+    uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search?from=' + skip + '&size=' + limit
     return new Promise((resolve, reject) => {
       request({method: 'post', url: uri, json: true, body: query}, function (error, response, body) {
         if (error) {
@@ -219,6 +262,16 @@ class Service {
   }
 
   async getDataFromES (query, params, country) {
+    if (params.query.$skip != undefined && params.query.$skip != '') {
+      skip = parseInt(params.query.$skip)
+    } else {
+      skip = 0
+    }
+    if (params.query.$limit != undefined && params.query.$limit != '') {
+      limit = parseInt(params.query.$limit)
+    } else {
+      limit = 10
+    }
     let queryBody = {
       "query" : {
         "bool" : {
@@ -245,6 +298,23 @@ class Service {
     }
     if (country == '') {
       queryBody.query = query
+    }
+    try {
+      if (!Object.keys(params).length == 0) {
+        Object.keys(params.query).forEach(function(key){
+          if ([key] != 'source' && [key] != '$skip' && [key] != '$limit') {
+            [key] == 'sku' ? queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match_phrase" : {[key] : params.query[key]} }) : queryBody.query.bool.filter.bool.should[0].bool.must.push({ "match" : {[key] : params.query[key]} })
+          } else {
+            let array
+            if (params.query.source != '' && params.query.source != undefined) {
+              array = params.query.source.split(",").map(String)
+            }
+            queryBody._source = array
+          }
+        })
+      }
+    } catch (err) {
+      console.log('Error Catch : ', err)
     }
     let searchResult = await this.getResultFromES(queryBody, params)
     return searchResult

@@ -69,6 +69,8 @@ app.configure(auth({ secret: config.secret }));
 app.configure(jwt({service : "categories"}));
 app.configure(jwt({service : "api/products"}));
 app.configure(jwt({service : "filters"}));
+app.configure(jwt({service : "vshop-list"}));
+app.configure(jwt({service : "vshop-detail"}));
 
 // Set up our services (see `services/index.js`)
 app.configure(services);
