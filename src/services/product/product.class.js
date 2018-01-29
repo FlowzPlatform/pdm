@@ -3,22 +3,13 @@ const feathers = require('@feathersjs/feathers');
 const express = require('@feathersjs/express');
 const errors = require('@feathersjs/errors');
 const rest = require('@feathersjs/express/rest');
-const config = require('../../../config/default.json');
+const config = require('../../config.js');
 const vm = require('../vidMiddleware.js');
 var jwt = require('jsonwebtoken');
 var request = require('request')
 var username = ''
-if (process.env.esUrl != '')
-    config.esUrl = process.env.esUrl
-if(process.env.secret != '')
-    config.secret = process.env.secret
-if(process.env.auth_url != '')
-    config.auth_url = process.env.auth_url
-if(process.env.pwd != '')
-    config.pwd = process.env.pwd
 
 class Service {
-
   constructor (options) {
     this.options = options || {};
   }

@@ -1,6 +1,6 @@
 var rp = require('request-promise');
 let errors = require('@feathersjs/errors') ;
-const config = require('../../../config/default.json');
+const config = require('../../config.js');
 
 module.exports = {
   before: {
@@ -96,7 +96,7 @@ async function after(hook){
 
 validateUser = data =>{
   var options = {
-    uri: process.env.userDetailApi,
+    uri: config.userDetailApi,
     headers: {
       Authorization : apiHeaders.authorization
     }

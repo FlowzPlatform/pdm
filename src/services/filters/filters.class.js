@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-const config = require('../../../config/default.json');
+const config = require('../../config.js');
 if (process.env.esUrl != '')
     config.esUrl = process.env.esUrl
 if(process.env.secret != '')

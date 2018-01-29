@@ -1,5 +1,5 @@
 const vm = require('../vidMiddleware.js');
-const config = require('../../../config/default.json');
+const config = require('../../config.js');
 var rpRequest = require('request')
 const jwt = require('@feathersjs/authentication-jwt');
 const auth = require('@feathersjs/authentication');

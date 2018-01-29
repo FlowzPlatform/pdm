@@ -4,18 +4,18 @@ const compress = require('compression');
 const cors = require('cors');
 const helmet = require('helmet');
 const bodyParser = require('body-parser');
-const feathers = require('@feathersjs/feathers');
 
 const express = require('@feathersjs/express');
 
 const configuration = require('@feathersjs/configuration');
 const rest = require('@feathersjs/express/rest');
 const socketio = require('@feathersjs/socketio');
+const feathers = require('@feathersjs/feathers');
 
+const authentication = require('@feathersjs/authentication');
 const jwt = require('@feathersjs/authentication-jwt');
-const auth = require('@feathersjs/authentication');
 const hooks = require('feathers-hooks');
-const config = require('../config/default.json');
+const config = require('./config.js');
 
 if (process.env.esUrl != '')
   config.esUrl = process.env.esUrl
@@ -57,20 +57,21 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(favicon(path.join(app.get('public'), 'favicon.ico')));
 // Host the public folder
 app.use('/', express.static(app.get('public')));
-
 app.configure(rethinkdb);
 app.configure(rest());
 // app.configure(socketio());
 app.configure(socketio(config.wsPort, {
-    wsEngine: 'uws',
-    origin: '*.' + config.domainKey + ':*'
-  }));
-app.configure(auth({ secret: config.secret }));
+  wsEngine: 'uws',
+  origin: '*.' + config.domainKey + ':*'
+}));
+
+app.configure(authentication({ secret: config.secret }));
 app.configure(jwt({service : "categories"}));
 app.configure(jwt({service : "api/products"}));
 app.configure(jwt({service : "filters"}));
-app.configure(jwt({service : "vshop-list"}));
 app.configure(jwt({service : "vshop-detail"}));
+app.configure(jwt({service : "vshop-list"}));
+// ,{service : "vshop-list"},{service : "categories"},{service : "filters"},{service : "api/products"}));
 
 // Set up our services (see `services/index.js`)
 app.configure(services);

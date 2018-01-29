@@ -1,6 +1,6 @@
 // import { create } from 'domain';
 /* eslint-disable no-unused-vars */
-const config = require('../../../config/default.json');
+const config = require('../../config.js');
 const errors = require('@feathersjs/errors');
 const feathers = require('feathers');
 const rest = require('feathers-rest');
@@ -9,16 +9,6 @@ const vm = require('../vidMiddleware.js');
 var jwt = require('jsonwebtoken');
 var request = require('request');
 
-if (process.env.esUrl != '')
-  config.esUrl = process.env.esUrl
-if(process.env.secret != '')
-  config.secret = process.env.secret
-if(process.env.auth_url != '')
-  config.auth_url = process.env.auth_url
-if(process.env.pwd != '')
-  config.pwd = process.env.pwd
-if(process.env.index != '')
-  config.credOptions.index = process.env.index
 
 let skip = 0
 let limit = 10

@@ -8,7 +8,7 @@ var jwt1 = require('jsonwebtoken');
 var request = require('request');
 const memory = require('feathers-memory');
 const productService = memory();
-const config = require('../../../config/default.json');
+const config = require('../../config.js');
 let elasticsearch = require('elasticsearch');
 var username1 = ""
 
