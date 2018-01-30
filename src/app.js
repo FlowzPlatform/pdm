@@ -66,19 +66,12 @@ app.configure(socketio(config.wsPort, {
 }));
 
 app.configure(authentication({ secret: config.secret }));
-app.configure(jwt({service : "categories"}));
-app.configure(jwt({service : "api/products"}));
-app.configure(jwt({service : "filters"}));
 app.configure(jwt({service : "vshop-detail"}));
-app.configure(jwt({service : "vshop-list"}));
-// ,{service : "vshop-list"},{service : "categories"},{service : "filters"},{service : "api/products"}));
 
 // Set up our services (see `services/index.js`)
 app.configure(services);
 // Configure middleware (see `middleware/index.js`) - always has to be last
 app.configure(middleware);
 app.hooks(appHooks);
-
-
 
 module.exports = app;
