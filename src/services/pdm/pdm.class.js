@@ -239,7 +239,7 @@ class Service {
   }
   
   getResultFromES(query, params) {
-    uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search?from=' + skip + '&size=' + limit
+    skip == 0 && limit == 10 ? uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search' : uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search?from=' + skip + '&size=' + limit
     return new Promise((resolve, reject) => {
       request({method: 'post', url: uri, json: true, body: query}, function (error, response, body) {
         if (error) {

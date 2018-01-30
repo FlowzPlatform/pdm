@@ -1,14 +1,17 @@
-const jwt = require('@feathersjs/authentication-jwt');
 const auth = require('@feathersjs/authentication');
+const jwt = require('@feathersjs/authentication-jwt');
+const axios = require('axios');
 
 module.exports = {
   before: {
     all: [
       auth.hooks.authenticate(['jwt'])
     ],
-    find: [],
-    get: [
+    find: [
       hook => before(hook)
+    ],
+    get: [
+      hook => beforeGet(hook)
     ],
     create: [],
     update: [],
@@ -38,11 +41,32 @@ module.exports = {
 };
 
 
-function before(hook){
-  return hook.app.service('vshopdata').find({
+async function before(hook){
+  let id
+  if (Object.keys(hook.params).length != 0) {
+    await axios.get('http://api.flowzcluster.tk/auth/api/userdetails', {headers:{Authorization:  hook.params.headers.authorization}})
+    .then(response => {
+      id = response.data.data._id
+    })
+    .catch(error => {
+      console.log('Error : ', error)
+    })
+    return hook.app.service('vshopdata').find({ 
+      query: { 
+        userId: id
+      }
+    }).then(page => {
+      hook.result = page.data;
+      return hook;
+    });
+  }
+}
+
+function beforeGet(hook) {
+  console.log(hook.id)
+  return hook.app.service('vshopdata').find({ 
     query: { 
-      userId: hook.id,
-      status: "completed"
+      userId: hook.id
     }
   }).then(page => {
     hook.result = page.data;

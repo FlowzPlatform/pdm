@@ -1,12 +1,20 @@
+const auth = require('@feathersjs/authentication');
+const jwt = require('@feathersjs/authentication-jwt');
 var rp = require('request-promise');
 let errors = require('@feathersjs/errors') ;
 const config = require('../../config.js');
 
 module.exports = {
   before: {
-    all: [],
-    find: [],
-    get: [],
+    all: [
+      auth.hooks.authenticate(['jwt'])
+    ],
+    find: [
+      hook => throwError(hook)
+    ],
+    get: [
+      hook => before(hook)
+    ],
     create: [
       hook => create(hook)
     ],
@@ -113,3 +121,18 @@ validateUser = data =>{
   })
 }
 
+function before(hook) {
+  if(hook.id != undefined) {
+    return hook;
+  } else {
+    throw new errors.NotAcceptable('Please provide id to search')
+  }
+}
+
+function throwError(hook) {
+  if(hook.params.query.userId != undefined) {
+    return hook;
+  } else {
+    throw new errors.NotAcceptable('Please provide id to search')
+  }
+}
