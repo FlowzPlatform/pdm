@@ -51,11 +51,22 @@ async function before(hook){
     .catch(error => {
       console.log('Error : ', error)
     })
-    return hook.app.service('vshopdata').find({ 
-      query: { 
-        userId: id
+    let query = {}
+    if (hook.params.query.all == '1') {
+      query = { 
+        query: { 
+          userId: id
+        }
       }
-    }).then(page => {
+    } else {
+      query = { 
+        query: { 
+          userId: id,
+          status: 'completed'
+        }
+      }
+    }
+    return hook.app.service('vshopdata').find(query).then(page => {
       hook.result = page.data;
       return hook;
     });
