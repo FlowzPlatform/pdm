@@ -14,10 +14,10 @@ module.exports = {
       hook => throwError(hook)
     ],
     get: [
-      hook => before(hook)
+      hook => beforeGet(hook)
     ],
     create: [
-      hook => create(hook)
+      hook => beforeCreate(hook)
     ],
     update: [],
     patch: [],
@@ -29,7 +29,7 @@ module.exports = {
     find: [],
     get: [],
     create: [
-      hook => after(hook)
+      hook => afterCreate(hook)
     ],
     update: [],
     patch: [],
@@ -48,7 +48,7 @@ module.exports = {
 };
 let c = ''
 
-async function create(hook){
+async function beforeCreate(hook){
   let res = await validateUser(hook);
   if(res.code == 401){
     throw new errors.NotAuthenticated('Invalid token');
@@ -63,7 +63,7 @@ async function create(hook){
   }
 }
 
-async function after(hook){
+async function afterCreate(hook){
   if(hook.data.id) {
     let res = await validateUser(hook);
     if(res.code == 401){
@@ -124,7 +124,7 @@ validateUser = async data =>{
   })
 }
 
-function before(hook) {
+function beforeGet(hook) {
   if(hook.id != undefined) {
     return hook;
   } else {
@@ -133,7 +133,9 @@ function before(hook) {
 }
 
 function throwError(hook) {
-  if(hook.params.query.userId != undefined) {
+  if (hook.params.query.userType != undefined) {
+    return hook
+  } else if(hook.params.query.userId != undefined) {
     return hook;
   } else {
     throw new errors.NotAcceptable('Please provide id to search')
