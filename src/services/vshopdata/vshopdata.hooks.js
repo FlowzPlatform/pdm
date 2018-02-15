@@ -46,10 +46,7 @@ module.exports = {
     remove: []
   }
 };
-
-
 let c = ''
-let userData = ''
 
 async function create(hook){
   let res = await validateUser(hook);
@@ -57,7 +54,7 @@ async function create(hook){
     throw new errors.NotAuthenticated('Invalid token');
   }else{
     let a = hook.data.virtualShopName
-    let b = userData.id;
+    let b = res.id;
     c = hook.data.suppliers;
     hook.data = {};
     hook.data.virtualShopName= a;
@@ -88,9 +85,9 @@ async function after(hook){
         },
         "vId": hook.result.id,
         "userdetail":{
-          "emailId": userData.email,
-          "password": userData.password,
-          "userId": userData.id
+          "emailId": res.email,
+          "password": res.password,
+          "userId": res.id
         }
       }
       let response = {
@@ -115,7 +112,7 @@ async function after(hook){
 validateUser = async data =>{
   return await axios.get(config.userDetailApi, {headers: {Authorization: apiHeaders.authorization}})
   .then(parsedBody => {
-    userData = {
+    let userData = {
       'id': parsedBody.data.data._id,
       'email': parsedBody.data.data.email,
       'password': parsedBody.data.data.password
