@@ -1,6 +1,7 @@
 const auth = require('@feathersjs/authentication');
 const jwt = require('@feathersjs/authentication-jwt');
 const axios = require('axios');
+const config = require('../../config.js')
 
 module.exports = {
   before: {
@@ -44,7 +45,9 @@ module.exports = {
 async function before(hook){
   let id
   if (Object.keys(hook.params).length != 0) {
-    await axios.get('http://api.flowzqa.tk/auth/api/userdetails', {headers:{Authorization:  hook.params.headers.authorization}})
+
+    await axios.get(config.userDetailApi, {headers:{Authorization:  hook.params.headers.authorization}})
+
     .then(response => {
       id = response.data.data._id
     })
