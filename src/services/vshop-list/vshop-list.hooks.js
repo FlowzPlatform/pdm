@@ -45,7 +45,9 @@ module.exports = {
 async function before(hook){
   let id
   if (Object.keys(hook.params).length != 0) {
+
     await axios.get(config.userDetailApi, {headers:{Authorization:  hook.params.headers.authorization}})
+
     .then(response => {
       id = response.data.data._id
     })
