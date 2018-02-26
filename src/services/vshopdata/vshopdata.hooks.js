@@ -96,15 +96,15 @@ async function afterCreate(hook){
         json: true,
         body: body
       }
-      const jobQueueRes = rp(response);
+      // const jobQueueRes = rp(response);
       //----------------------  send in job queue  const jobQueueRes = rp(response);
-      // axios.post(config.jobQueue.url, body)
-      // .then(res => {
-      //   console.log('Job-queue entry done')
-      // })
-      // .catch(err => {
-      //   throw new errors.NotAcceptable('Error during insertion in job-queue')
-      // })
+      axios.post(config.jobQueue.url, body)
+      .then(res => {
+        console.log('Job-queue entry done')
+      })
+      .catch(err => {
+        throw new errors.NotAcceptable('Error during insertion in job-queue')
+      })
     }     
   }
 }
