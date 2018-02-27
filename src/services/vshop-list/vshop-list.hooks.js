@@ -58,14 +58,16 @@ async function before(hook){
     if (hook.params.query.all == '1') {
       query = { 
         query: { 
-          userId: id
+          userId: id,
+          $limit: hook.params.query.$limit
         }
       }
     } else {
       query = { 
         query: { 
           userId: id,
-          status: 'completed'
+          status: 'completed',
+          $limit: hook.params.query.$limit
         }
       }
     }
@@ -77,7 +79,6 @@ async function before(hook){
 }
 
 function beforeGet(hook) {
-  console.log(hook.id)
   return hook.app.service('vshopdata').find({ 
     query: { 
       userId: hook.id
