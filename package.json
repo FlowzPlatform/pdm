@@ -60,6 +60,7 @@
     "primus": "^7.1.0",
     "request": "^2.81.0",
     "request-ip": "^2.0.2",
+    "rethinkdb": "^2.3.3",
     "rethinkdbdash": "^2.3.31",
     "satelize": "^0.2.0",
     "serve-favicon": "^2.4.3",

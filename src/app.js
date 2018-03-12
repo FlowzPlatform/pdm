@@ -9,13 +9,18 @@ const express = require('@feathersjs/express');
 
 const configuration = require('@feathersjs/configuration');
 const rest = require('@feathersjs/express/rest');
-const socketio = require('@feathersjs/socketio');
+// const socketio = require('@feathersjs/socketio');
 const feathers = require('@feathersjs/feathers');
+
+var sockio = require("socket.io");
+// var app = require("express")();
+var r = require("rethinkdb");
 
 const authentication = require('@feathersjs/authentication');
 const jwt = require('@feathersjs/authentication-jwt');
 const hooks = require('feathers-hooks');
 const config = require('./config.js');
+var conn = config.rethinkdb;
 
 if (process.env.esUrl != '')
   config.esUrl = process.env.esUrl
@@ -65,10 +70,23 @@ app.use('/', express.static(app.get('public')));
 app.configure(rethinkdb);
 app.configure(rest());
 // app.configure(socketio());
-app.configure(socketio(config.wsPort, {
-  wsEngine: 'uws',
-  origin: '*.' + config.domainKey + ':*'
-}));
+// app.configure(socketio(config.wsPort, {
+//   wsEngine: 'uws',
+//   origin: '*.localhost:*'
+// }));
+var rethink = { 'db': config.rethinkdb.db, 'host': config.rethinkdb.servers[0].host, 'port': config.rethinkdb.servers[0].port };
+var io = sockio.listen(app.listen(4038), {log: false,  wsEngine: 'uws', origin: '*.' + config.domainKey + ':*'});
+
+console.log("sockio listening on port 4038");
+ 
+r.connect(rethink).then(function(conn) {
+  return r.table("vshopdata").changes().run(conn);
+})
+.then(function(cursor) {
+  cursor.each(function(err, data) {
+    io.sockets.emit("update", data);
+  });
+});
 
 app.configure(authentication({ secret: config.secret }));
 app.configure(jwt({service : "vshop-detail"}));
