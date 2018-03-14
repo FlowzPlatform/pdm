@@ -134,7 +134,11 @@ function beforeGet(hook) {
 
 function throwError(hook) {
   if (hook.params.query.userType != undefined) {
-    return hook
+    if (hook.params.query && hook.params.query.$paginate) {
+      hook.params.paginate = hook.params.query.$paginate === 'false' || hook.params.query.$paginate === false;
+      delete hook.params.query.$paginate;
+    }
+    return hook;
   } else if(hook.params.query.userId != undefined) {
     return hook;
   } else {
