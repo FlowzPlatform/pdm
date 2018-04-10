@@ -32,7 +32,7 @@ module.exports = {
     "esUrl": process.env.esUrl,
     "secret": process.env.secret,
     "auth_url": "http://api." + process.env.domainkey + "/user/getuserdetails/ index=pdm1",
-    "userDetailApi": "http://auth." + process.env.domainkey + "/api/userdetails",
+    "userDetailApi": "http://api." + process.env.domainkey + "/auth/api/userdetails",
     "pwd": process.env.pwd,
     "wsPort": process.env.wsport || "4038"
 }
