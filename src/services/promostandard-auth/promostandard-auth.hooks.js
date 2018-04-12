@@ -63,12 +63,16 @@ async function userAuth(hook) {
       headers: { authorization: auth_token }
     }
     return hook.app.service('vshop-list').find(query).then(page => {
-     /*  let obj = []
+      /*  let obj = []
       for(let item in page) {
         obj.push({ 'vid': page[item].id })
       } */
       // console.log('>>>>>..', page[0].id)
-      hook.result = {'vid': page[0].id};
+      if (page.length == 0) {
+        hook.result = { 'error': 'No record found.' }
+      } else {
+        hook.result = {'vid': page[0].id };
+      }
       return hook;
     });
   }
