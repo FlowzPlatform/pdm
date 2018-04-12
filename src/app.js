@@ -12,7 +12,7 @@ const rest = require('@feathersjs/express/rest');
 // const socketio = require('@feathersjs/socketio');
 const feathers = require('@feathersjs/feathers');
 
-var sockio = require("socket.io");
+var socketio = require("socket.io");
 // var app = require("express")();
 var r = require("rethinkdb");
 
@@ -75,9 +75,9 @@ app.configure(rest());
 //   origin: '*.localhost:*'
 // }));
 var rethink = { 'db': config.rethinkdb.db, 'host': config.rethinkdb.servers[0].host, 'port': config.rethinkdb.servers[0].port };
-var io = sockio.listen(app.listen(4038), {log: false,  wsEngine: 'uws', origin: '*.' + config.domainKey + ':*'});
+var io = socketio.listen(app.listen(4038), {log: false,  wsEngine: 'uws', origin: '*.' + config.domainKey + ':*'});
 
-console.log("sockio listening on port 4038");
+console.log("socketio listening on port 4038");
  
 r.connect(rethink).then(function(conn) {
   return r.table("vshopdata").changes().run(conn);
