@@ -4,6 +4,7 @@ var rp = require('request-promise');
 var axios = require('axios');
 let errors = require('@feathersjs/errors') ;
 const config = require('../../config.js');
+const _ = require('lodash');
 
 module.exports = {
   before: {
@@ -26,7 +27,9 @@ module.exports = {
 
   after: {
     all: [],
-    find: [],
+    find: [
+      hook => rejectSupplier(hook)
+    ],
     get: [],
     create: [
       hook => afterCreate(hook)
@@ -72,6 +75,8 @@ async function afterCreate(hook){
       hook.app.service('vshop-detail').create({
         "id":hook.result.id,
         "suppliers":c
+      }).catch((err)=>{
+        throw new convertToOtherError(err);
       })
 
       let body = {
@@ -105,7 +110,7 @@ async function afterCreate(hook){
       .catch(err => {
         throw new errors.NotAcceptable('Error during insertion in job-queue')
       })
-    }     
+    }
   }
 }
 
@@ -135,13 +140,27 @@ function beforeGet(hook) {
 function throwError(hook) {
   if (hook.params.query.userType != undefined) {
     if (hook.params.query && hook.params.query.$paginate) {
-      hook.params.paginate = hook.params.query.$paginate === 'false' || hook.params.query.$paginate === false;
+      hook.params.paginate = hook.params.query.$paginate === 'false' ? false : true;
       delete hook.params.query.$paginate;
+    }
+    if (hook.params.query.supplier != undefined) {
+      if (hook.params.query.supplier == 'false') {
+        hook.params.userType = hook.params.query.supplier;
+        hook.params.supplier = 'false';
+        delete hook.params.query.userType;
+      }
+      delete hook.params.query.supplier;
     }
     return hook;
   } else if(hook.params.query.userId != undefined) {
     return hook;
   } else {
     throw new errors.NotAcceptable('Please provide id to search')
+  }
+}
+
+function rejectSupplier(hook) {
+  if(hook.params.supplier == 'false') {
+    hook.result.data = _.reject(hook.result.data, ['userType', 'supplier']);
   }
 }

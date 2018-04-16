@@ -9,7 +9,7 @@ module.exports = {
       auth.hooks.authenticate(['jwt'])
     ],
     find: [
-      hook => before(hook)
+      hook => beforeFind(hook)
     ],
     get: [
       hook => beforeGet(hook)
@@ -41,13 +41,11 @@ module.exports = {
   }
 };
 
-
-async function before(hook){
+async function beforeFind(hook){
   let id
   if (Object.keys(hook.params).length != 0) {
 
     await axios.get(config.userDetailApi, {headers:{Authorization:  hook.params.headers.authorization}})
-
     .then(response => {
       id = response.data.data._id
     })
@@ -55,10 +53,21 @@ async function before(hook){
       console.log('Error : ', error)
     })
     let query = {}
-    if (hook.params.query.all == '1') {
+    if (hook.params.query.all == '1' && hook.params.query.supplier == 'false') {
       query = { 
         query: { 
           userId: id,
+          supplier: 'false',
+          userType: 'supplier',
+          $limit: hook.params.query.$limit
+        }
+      }
+    } else if(hook.params.query.all == '1' && hook.params.query.supplier == 'true') {
+      query = { 
+        query: { 
+          userId: id,
+          supplier: 'true',
+          userType: 'supplier',
           $limit: hook.params.query.$limit
         }
       }
@@ -66,8 +75,7 @@ async function before(hook){
       query = { 
         query: { 
           userId: id,
-          status: 'completed',
-          $limit: hook.params.query.$limit
+          status: 'completed'
         }
       }
     }
