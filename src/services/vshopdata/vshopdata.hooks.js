@@ -49,19 +49,21 @@ module.exports = {
     remove: []
   }
 };
-let c = ''
+let suppliers = ''
 
 async function beforeCreate(hook){
   let res = await validateUser(hook);
   if(res.code == 401){
     throw new errors.NotAuthenticated('Invalid token');
   }else{
-    let a = hook.data.virtualShopName
-    let b = res.id;
-    c = hook.data.suppliers;
+    let virtualShopName = hook.data.virtualShopName
+    let id = res.id;
+    let subscriptionId = hook.data.subscriptionId
+    suppliers = hook.data.suppliers;
     hook.data = {};
-    hook.data.virtualShopName= a;
-    hook.data.userId= b;
+    hook.data.virtualShopName= virtualShopName;
+    hook.data.subscriptionId = subscriptionId;
+    hook.data.userId= id;
     hook.data.status= 'pending';
   }
 }
@@ -74,7 +76,7 @@ async function afterCreate(hook){
     }else{
       hook.app.service('vshop-detail').create({
         "id":hook.result.id,
-        "suppliers":c
+        "suppliers":suppliers
       })
 
       let body = {

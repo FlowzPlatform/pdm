@@ -45,12 +45,11 @@ async function beforeFind(hook){
   let id
   if (Object.keys(hook.params).length != 0) {
 
-    await axios.get(config.userDetailApi, {headers:{Authorization:  hook.params.headers.authorization}})
-    .then(response => {
+    await axios.get(config.userDetailApi, {headers:{Authorization:  hook.params.headers.authorization}}).then(response => {
       id = response.data.data._id
-    })
-    .catch(error => {
+    }).catch(error => {
       console.log('Error : ', error)
+      hook.result = { error: error };
     })
     let query = {}
     if (hook.params.query.all == '1' && hook.params.query.supplier == 'false') {
