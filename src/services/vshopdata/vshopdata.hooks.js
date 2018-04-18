@@ -77,6 +77,8 @@ async function afterCreate(hook){
       hook.app.service('vshop-detail').create({
         "id":hook.result.id,
         "suppliers":suppliers
+      }).catch((err)=>{
+        throw new convertToOtherError(err);
       })
 
       let body = {
@@ -110,7 +112,7 @@ async function afterCreate(hook){
       .catch(err => {
         throw new errors.NotAcceptable('Error during insertion in job-queue')
       })
-    }     
+    }
   }
 }
 
