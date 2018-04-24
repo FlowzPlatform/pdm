@@ -236,6 +236,24 @@ class Service {
         res.send(searchResult)
       }
     })
+    app.post('/'+ path +'/run/fullquery', async function (req, res, err) {
+      if (err && err === 'route') {
+        return done()
+      }
+      await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
+      .then(response => {
+        config.credOptions.username = response[0]
+        config.credOptions.password = response[1]
+        req.params.credential = response
+      })
+      if (req.params.credential[2]) {
+        res.send(req.params.credential[2])
+      } else {
+        let searchResult = await self.getResultFromES(req.body, req.params)
+        console.log('info: after: pdm - Method: custom fullquery')
+        res.send(searchResult)
+      }
+    })
   }
   
   getResultFromES(query, params) {
