@@ -11,6 +11,7 @@ const configuration = require('@feathersjs/configuration');
 const rest = require('@feathersjs/express/rest');
 // const socketio = require('@feathersjs/socketio');
 const feathers = require('@feathersjs/feathers');
+const subscription = require('flowz-subscription')
 
 var socketio = require("socket.io");
 // var app = require("express")();
@@ -30,8 +31,8 @@ if(process.env.auth_url != '')
   config.auth_url = process.env.auth_url
 if(process.env.pwd != '')
   config.pwd = process.env.pwd
-if(process.env.domainkey != '')
-  config.domainKey = process.env.domainkey
+if(process.env.domainKey != '')
+  config.domainKey = process.env.domainKey
 if(process.env.index != '')
   config.credOptions.index = process.env.index
 if (process.env.wsport != '') 
@@ -91,6 +92,7 @@ r.connect(rethink).then(function(conn) {
 app.configure(authentication({ secret: config.secret }));
 app.configure(jwt({service : "vshop-detail"}));
 
+app.use(subscription.featherSubscription)
 // Set up our services (see `services/index.js`)
 app.configure(services);
 // Configure middleware (see `middleware/index.js`) - always has to be last
