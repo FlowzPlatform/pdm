@@ -8,7 +8,7 @@ exports.check = async function getUsername(serviceObject, vid, flag) { // flag :
       user = response.esUser
       password = response.password
     }).catch(err => {
-      err = new errors.NotFound(err.message)
+      error = new errors.NotFound(err.message)
     })
   }
   if(flag && !vid) {
