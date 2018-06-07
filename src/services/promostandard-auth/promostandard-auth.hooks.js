@@ -61,7 +61,7 @@ async function userAuth(hook) {
         status: 'completed'
       },
       headers: { authorization: auth_token }
-    }
+    };
     return hook.app.service('vshop-list').find(query).then(page => {
       /*  let obj = []
       for(let item in page) {
@@ -69,7 +69,7 @@ async function userAuth(hook) {
       } */
       // console.log('>>>>>..', page[0].id)
       if (page.length == 0) {
-        hook.result = { 'error': 'No record found.' }
+        hook.result = { 'error': 'No record found.' };
       } else {
         hook.result = {'vid': page[0].id };
       }

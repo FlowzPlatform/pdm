@@ -1,6 +1,4 @@
 const auth = require('@feathersjs/authentication');
-const jwt = require('@feathersjs/authentication-jwt');
-var rp = require('request-promise');
 var axios = require('axios');
 let errors = require('@feathersjs/errors') ;
 const config = require('../../config.js');
@@ -49,16 +47,16 @@ module.exports = {
     remove: []
   }
 };
-let suppliers = ''
+let suppliers = '';
 
 async function beforeCreate(hook){
   let res = await validateUser(hook);
   if(res.code == 401){
     throw new errors.NotAuthenticated('Invalid token');
   }else{
-    let virtualShopName = hook.data.virtualShopName
+    let virtualShopName = hook.data.virtualShopName;
     let id = res.id;
-    let subscriptionId = hook.data.subscriptionId
+    let subscriptionId = hook.data.subscriptionId;
     suppliers = hook.data.suppliers;
     hook.data = {};
     hook.data.virtualShopName= virtualShopName;
@@ -75,67 +73,67 @@ async function afterCreate(hook){
       throw new errors.NotAuthenticated('Invalid token');
     }else{
       hook.app.service('vshop-detail').create({
-        "id":hook.result.id,
-        "suppliers":suppliers
-      }).catch((err)=>{
-        throw new convertToOtherError(err);
-      })
+        'id':hook.result.id,
+        'suppliers':suppliers
+      }).catch((err) => {
+        throw new convertToOtherError(err); // eslint-disable-line
+      });
 
       let body = {
-        "connection" : {
-          "host": config.rethinkdb.servers[0].host,
-          "port": config.rethinkdb.servers[0].port,
-          "db": config.rethinkdb.db
+        'connection' : {
+          'host': config.rethinkdb.servers[0].host,
+          'port': config.rethinkdb.servers[0].port,
+          'db': config.rethinkdb.db
         },
-        "queue" : {
-          "name": "importData"
+        'queue' : {
+          'name': 'importData'
         },
-        "vId": hook.result.id,
-        "userdetail":{
-          "emailId": res.email,
-          "password": res.password,
-          "userId": res.id
+        'vId': hook.result.id,
+        'userdetail':{
+          'emailId': res.email,
+          'password': res.password,
+          'userId': res.id
         }
-      }
-      let response = {
+      };
+      let response = { // eslint-disable-line no-unused-vars
         method: 'POST',
         url: config.jobQueue.url,
         json: true,
         body: body
-      }
+      };
       // const jobQueueRes = rp(response);
       //----------------------  send in job queue  const jobQueueRes = rp(response);
       axios.post(config.jobQueue.url, body)
-      .then(res => {
-        console.log('Job-queue entry done')
-      })
-      .catch(err => {
-        throw new errors.NotAcceptable('Error during insertion in job-queue')
-      })
+        .then(res => { // eslint-disable-line no-unused-vars
+          console.log('Job-queue entry done'); // eslint-disable-line no-console
+        })
+        .catch(err => { // eslint-disable-line no-unused-vars
+          throw new errors.NotAcceptable('Error during insertion in job-queue');
+        });
     }
   }
 }
 
-validateUser = async data =>{
-  return await axios.get(config.userDetailApi, {headers: {Authorization: apiHeaders.authorization}})
-  .then(parsedBody => {
-    let userData = {
-      'id': parsedBody.data.data._id,
-      'email': parsedBody.data.data.email,
-      'password': parsedBody.data.data.password
-    }
-    return userData
-  })
-  .catch(function (err) {
-    return {"code" : 401 }
-  })
-}
+let validateUser = async (data) => { // eslint-disable-line no-unused-vars
+  return await axios.get(config.userDetailApi, {headers: {Authorization: apiHeaders.authorization}}) // eslint-disable-line no-undef
+    .then(parsedBody => {
+      let userData = {
+        'id': parsedBody.data.data._id,
+        'email': parsedBody.data.data.email,
+        'password': parsedBody.data.data.password
+      };
+      return userData;
+    })
+    .catch(function (err) { // eslint-disable-line no-unused-vars
+      return {'code' : 401 };
+    });
+};
 
 function beforeGet(hook) {
   if(hook.id != undefined) {
     return hook;
   } else {
-    throw new errors.NotAcceptable('Please provide id to search')
+    throw new errors.NotAcceptable('Please provide id to search');
   }
 }
 
@@ -157,7 +155,7 @@ function throwError(hook) {
   } else if(hook.params.query.userId != undefined) {
     return hook;
   } else {
-    throw new errors.NotAcceptable('Please provide id to search')
+    throw new errors.NotAcceptable('Please provide id to search');
   }
 }
 

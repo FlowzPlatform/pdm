@@ -23,8 +23,9 @@
   "scripts": {
     "test": "npm run eslint && npm run mocha",
     "eslint": "eslint src/. test/. --config .eslintrc.json",
-    "start": "node src/",
-    "mocha": "mocha test/ --recursive"
+    "start": "npm run eslint && node src/",
+    "mocha": "mocha test/ --recursive",
+    "beautify": "eslint --fix ."
   },
   "dependencies": {
     "@feathersjs/authentication": "^2.1.1",

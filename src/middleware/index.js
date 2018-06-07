@@ -9,15 +9,15 @@ module.exports = function () {
   // the error handler have to go last.
   const app = this;
 
-  subscription.moduleResource.moduleName = 'vshopdata'
+  subscription.moduleResource.moduleName = 'vshopdata';
   let registerAppModule = {
     'vshopdata': ['create']
-  }
+  };
 
-  subscription.moduleResource.registerAppModule = registerAppModule
-  subscription.moduleResource.appRoles = ['admin', 'csr']
+  subscription.moduleResource.registerAppModule = registerAppModule;
+  subscription.moduleResource.appRoles = ['admin', 'csr'];
   subscription.registeredAppModulesRole();
-  subscription.registerDynamicHooks(app, registerAppModule)
+  subscription.registerDynamicHooks(app, registerAppModule);
 
   app.use(flowzError());
   app.use(notFound());
