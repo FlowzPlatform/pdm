@@ -14,7 +14,7 @@ function handleSocketCallback (promise, callback) {
   if (typeof callback === 'function') {
     promise.then(data => callback(null, data))
       .catch(error => {
-        debug(`Socket authentication error`, error);
+        debug('Socket authentication error', error);
         callback(normalizeError(error));
       });
   }
@@ -22,7 +22,7 @@ function handleSocketCallback (promise, callback) {
   return promise;
 }
 
-module.exports = function setupSocketHandler (app, options, { feathersParams, provider, emit, disconnect }) {
+module.exports = function setupSocketHandler (app, options, { feathersParams, provider, emit, disconnect }) { // eslint-disable-line no-unused-vars
   const authSettings = app.get('authentication') || app.get('auth');
   const service = app.service(authSettings.path);
   // const entityService = app.service(authSettings.service);
@@ -48,7 +48,7 @@ module.exports = function setupSocketHandler (app, options, { feathersParams, pr
         socket._feathers.body = {};
 
         const promise = service.remove(accessToken, { authenticated: true }).then(tokens => {
-          debug(`Successfully logged out socket with accessToken`, accessToken);
+          debug('Successfully logged out socket with accessToken', accessToken);
 
           app.emit('logout', tokens, {
             provider,
@@ -110,12 +110,12 @@ module.exports = function setupSocketHandler (app, options, { feathersParams, pr
 
           // Clear any previous timeout if we have logged in again.
           if (logoutTimer) {
-            debug(`Clearing old timeout.`);
+            debug('Clearing old timeout.');
             lt.clearTimeout(logoutTimer);
           }
 
           logoutTimer = lt.setTimeout(() => {
-            debug(`Token expired. Logging out.`);
+            debug('Token expired. Logging out.');
             logout();
           }, ms(authSettings.jwt.expiresIn));
 

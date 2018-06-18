@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 const logger = require('winston');
 // const http = require('http');
 
