@@ -1,10 +1,9 @@
-// import { create } from 'domain';
 const config = require('../../config.js');
-// const errors = require('@feathersjs/errors');
-// const feathers = require('feathers');
 const vm = require('../vidMiddleware.js');
 const request = require('request');
-
+const elasticsearch = require('elasticsearch');
+const productIndex = 'pdmdev';
+const productDataType = 'product';
 
 let skip = 0;
 let limit = 10;
@@ -329,9 +328,72 @@ class Service {
   }
 
   patch (id, data, params) { // eslint-disable-line no-unused-vars
-    return Promise.resolve(data);
+    let result = this.updateProductDetails(id, data, params);
+    
+    return  Promise.resolve(result).then(res => {
+      return res;
+    }).catch(err => {
+      return err;
+    });
   }
-
+  async updateProductDetails(id, data, params) { // eslint-disable-line no-unused-vars 
+    // config.credOptions.username + ':' + config.credOptions.password
+    let ESClient = new elasticsearch.Client({
+      host: 'https://' + process.env.esAuth + '@' + esURL,
+      requestTimeout: 100000
+    });
+    const bodyData = {
+      'query': {
+        'match': {
+          '_id': id
+        }
+      }
+    };
+    let result = await (productDetails);
+    if (data.supplier_id == result.hits[0]._source.supplier_id) {
+      // console.log() // eslint-disable-line
+      delete data._id;
+      return ESClient.update({
+        id: id,
+        index: productIndex,
+        type: productDataType,
+        body: {
+          doc: data
+        }
+      }, (error, response) => {
+        if (error) {
+          console.log('Error', error); // eslint-disable-line
+          return error;
+        } else {
+          console.log('Response', response); // eslint-disable-line
+          return response;
+        }
+      });
+    }
+    let productDetails = () => {
+      new Promise((resolve, reject) => {
+        ESClient.search({
+          index: productIndex,
+          type: productDataType,
+          body: bodyData
+        }, (error, response) => {
+          if (error) {
+            // console.log('Error :', id, error); // eslint-disable-line
+            reject(error);
+          } else {
+            // console.log('GET PRODUCT DATA OF :', id, response); // eslint-disable-line
+            resolve(response.hits);
+          }
+        });
+      });
+    };
+    // return Promise.resolve(productDetails).then(res => {
+    //   console.log('RES>>', data.supplier_id, ' :: ', res.hits[0]._source.supplier_id, res) // eslint-disable-line
+      
+    // }).catch(err => {
+    //   console.log('ERR>>', err) // eslint-disable-line
+    // });
+  }
   remove (id, params) { // eslint-disable-line no-unused-vars
     return Promise.resolve({ id });
   }
