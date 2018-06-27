@@ -18,7 +18,7 @@ module.exports = {
     ]
   },
   'jobQueue': {
-    'url': 'http://api.' + process.env.domainKey + '/rjobqueue1/job/create',
+    'url': 'https://api.' + process.env.domainKey + '/rjobqueue1/job/create',
     'db': process.env.JQ_DB,
     'host': process.env.JQ_HOST,
     'port': process.env.JQ_PORT
@@ -31,8 +31,8 @@ module.exports = {
   },
   'esUrl': process.env.esUrl,
   'secret': process.env.secret,
-  'auth_url': 'http://api.' + process.env.domainKey + '/user/getuserdetails/ index=pdm1',
-  'userDetailApi': 'http://api.' + process.env.domainKey + '/auth/api/userdetails',
+  'auth_url': 'https://api.' + process.env.domainKey + '/user/getuserdetails',
+  'userDetailApi': 'https://api.' + process.env.domainKey + '/auth/api/userdetails',
   'loginUrl': 'https://api.' + process.env.domainKey + '/auth/api/login',
   'pwd': process.env.pwd,
   'wsPort': process.env.wsport || '4038'
