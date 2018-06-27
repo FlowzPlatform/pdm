@@ -10,7 +10,7 @@ module.exports = {
       auth.hooks.authenticate(['jwt'])
     ],
     find: [
-      hook => throwError(hook)
+      hook => beforeFind(hook)
     ],
     get: [
       hook => beforeGet(hook)
@@ -48,8 +48,10 @@ module.exports = {
   }
 };
 let suppliers = '';
+let userId = null;
 
 async function beforeCreate(hook){
+  userId = null;
   let res = await validateUser(hook);
   if(res.code == 401){
     throw new errors.NotAuthenticated('Invalid token');
@@ -58,6 +60,7 @@ async function beforeCreate(hook){
     let id = res.id;
     let subscriptionId = hook.data.subscriptionId;
     suppliers = hook.data.suppliers;
+    userId = id;
     hook.data = {};
     hook.data.virtualShopName= virtualShopName;
     hook.data.subscriptionId = subscriptionId;
@@ -68,7 +71,7 @@ async function beforeCreate(hook){
 
 async function afterCreate(hook){
   if(hook.data.id) {
-    let res = await validateUser(hook);
+    let res = await (validateUser(hook));
     if(res.code == 401){
       throw new errors.NotAuthenticated('Invalid token');
     }else{
@@ -101,15 +104,16 @@ async function afterCreate(hook){
         json: true,
         body: body
       };
+      userId = null;
       // const jobQueueRes = rp(response);
       //----------------------  send in job queue  const jobQueueRes = rp(response);
-      axios.post(config.jobQueue.url, body)
+      await (axios.post(config.jobQueue.url, body)
         .then(res => { // eslint-disable-line no-unused-vars
           console.log('Job-queue entry done'); // eslint-disable-line no-console
         })
         .catch(err => { // eslint-disable-line no-unused-vars
           throw new errors.NotAcceptable('Error during insertion in job-queue');
-        });
+        }));
     }
   }
 }
@@ -137,7 +141,7 @@ function beforeGet(hook) {
   }
 }
 
-function throwError(hook) {
+function beforeFind(hook) {
   if (hook.params.query.userType != undefined) {
     if (hook.params.query && hook.params.query.$paginate) {
       hook.params.paginate = hook.params.query.$paginate === 'false' ? false : true;
@@ -153,6 +157,8 @@ function throwError(hook) {
     }
     return hook;
   } else if(hook.params.query.userId != undefined) {
+    return hook;
+  } else if (userId != null) {
     return hook;
   } else {
     throw new errors.NotAcceptable('Please provide id to search');
