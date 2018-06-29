@@ -25,6 +25,8 @@ then
     BACKEND_HOST="$BACKEND_HOST_MASTER";
     RDB_HOST="$RDB_HOST_MASTER";
     RDB_PORT="$RDB_PORT_MASTER";
+    JQ_HOST="$JQ_HOST_MASTER";
+    JQ_PORT="$JQ_PORT_MASTER";
     }
 elif [ "$TRAVIS_BRANCH" = "develop" ]
 then
@@ -43,6 +45,8 @@ then
       BACKEND_HOST="$BACKEND_HOST_DEVELOP";
       RDB_HOST="$RDB_HOST_DEVELOP";
       RDB_PORT="$RDB_PORT_DEVELOP";
+      JQ_HOST="$JQ_HOST_DEVELOP";
+      JQ_PORT="$JQ_PORT_DEVELOP";
       }
 elif [ "$TRAVIS_BRANCH" = "staging" ]
 then
@@ -61,6 +65,8 @@ then
       BACKEND_HOST="$BACKEND_HOST_STAGING";
       RDB_HOST="$RDB_HOST_STAGING";
       RDB_PORT="$RDB_PORT_STAGING";
+      JQ_HOST="$JQ_HOST_STAGING";
+      JQ_PORT="$JQ_PORT_STAGING";
       }      
 else
   {
@@ -78,6 +84,8 @@ else
       BACKEND_HOST="$BACKEND_HOST_QA";
       RDB_HOST="$RDB_HOST_QA";
       RDB_PORT="$RDB_PORT_QA";
+      JQ_HOST="$JQ_HOST_QA";
+      JQ_PORT="$JQ_PORT_QA";
    }
 fi
 
