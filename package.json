@@ -23,8 +23,9 @@
   "scripts": {
     "test": "npm run eslint && npm run mocha",
     "eslint": "eslint src/. test/. --config .eslintrc.json",
-    "start": "node src/",
-    "mocha": "mocha test/ --recursive"
+    "start": "npm run eslint && node src/",
+    "mocha": "mocha test/ --recursive",
+    "beautify": "eslint --fix ."
   },
   "dependencies": {
     "@feathersjs/authentication": "^2.1.1",
@@ -52,6 +53,8 @@
     "feathers-rethinkdb": "^0.4.3",
     "feathers-socketio": "^2.0.1",
     "feathers-swagger": "^0.5.0",
+    "flowz-error-handler": "0.0.3",
+    "flowz-subscription": "^0.2.2",
     "geoip-lite": "^1.2.1",
     "helmet": "^3.6.1",
     "i": "^0.3.6",

@@ -1,10 +1,9 @@
 // Initializes the `vshopdata` service on path `/vshopdata`
 const createService = require('feathers-rethinkdb');
 const hooks = require('./vshopdata.hooks');
-const config = require('../../config.js');
 
 module.exports = function () {
-  const app = this
+  const app = this;
 
   const Model = app.get('rethinkdbClient');
   const paginate = app.get('paginate');
