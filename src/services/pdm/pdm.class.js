@@ -328,6 +328,7 @@ class Service {
   }
 
   patch (id, data, params) { // eslint-disable-line no-unused-vars
+    console.log('>>>>>', id, data, params) // eslint-disable-line
     let result = this.updateProductDetails(id, data, params);
     
     return  Promise.resolve(result).then(res => {
@@ -337,7 +338,6 @@ class Service {
     });
   }
   async updateProductDetails(id, data, params) { // eslint-disable-line no-unused-vars 
-    // config.credOptions.username + ':' + config.credOptions.password
     let ESClient = new elasticsearch.Client({
       host: 'https://' + process.env.esAuth + '@' + esURL,
       requestTimeout: 100000
@@ -349,29 +349,34 @@ class Service {
         }
       }
     };
-    let result = await (productDetails);
+    let result = await (productDetails());
+    console.log('>>RESULT>>>', result) // eslint-disable-line
     if (data.supplier_id == result.hits[0]._source.supplier_id) {
-      // console.log() // eslint-disable-line
       delete data._id;
-      return ESClient.update({
-        id: id,
-        index: productIndex,
-        type: productDataType,
-        body: {
-          doc: data
-        }
-      }, (error, response) => {
-        if (error) {
-          console.log('Error', error); // eslint-disable-line
-          return error;
-        } else {
-          console.log('Response', response); // eslint-disable-line
-          return response;
-        }
+      return new Promise((resolve, reject) => {
+        ESClient.update({
+          id: id,
+          index: productIndex,
+          type: productDataType,
+          body: {
+            doc: data
+          }
+        }, (error, response) => {
+          if (error) {
+            // console.log('Error', error); // eslint-disable-line
+            reject(error);
+          } else {
+            // console.log('Response', response); // eslint-disable-line
+            resolve(response);
+          }
+        });
       });
+    } else {
+      console.log('supplier id don\'t match', data.supplier_id, result.hits[0]._source.supplier_id) // eslint-disable-line
+      // throw error with message "You are not authorized to update this product details"
     }
-    let productDetails = () => {
-      new Promise((resolve, reject) => {
+    function productDetails() {
+      return new Promise((resolve, reject) => {
         ESClient.search({
           index: productIndex,
           type: productDataType,
@@ -386,13 +391,7 @@ class Service {
           }
         });
       });
-    };
-    // return Promise.resolve(productDetails).then(res => {
-    //   console.log('RES>>', data.supplier_id, ' :: ', res.hits[0]._source.supplier_id, res) // eslint-disable-line
-      
-    // }).catch(err => {
-    //   console.log('ERR>>', err) // eslint-disable-line
-    // });
+    }
   }
   remove (id, params) { // eslint-disable-line no-unused-vars
     return Promise.resolve({ id });
