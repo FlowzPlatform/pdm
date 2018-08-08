@@ -4,6 +4,7 @@ const request = require('request');
 const elasticsearch = require('elasticsearch');
 const productIndex = 'pdmdev';
 const productDataType = 'product';
+const errors = require('@feathersjs/errors');
 
 let skip = 0;
 let limit = 10;
@@ -328,10 +329,9 @@ class Service {
   }
 
   patch (id, data, params) { // eslint-disable-line no-unused-vars
-    console.log('>>>>>', id, data, params) // eslint-disable-line
     let result = this.updateProductDetails(id, data, params);
     
-    return  Promise.resolve(result).then(res => {
+    return Promise.resolve(result).then(res => {
       return res;
     }).catch(err => {
       return err;
@@ -350,7 +350,6 @@ class Service {
       }
     };
     let result = await (productDetails());
-    console.log('>>RESULT>>>', result) // eslint-disable-line
     if (data.supplier_id == result.hits[0]._source.supplier_id) {
       delete data._id;
       return new Promise((resolve, reject) => {
@@ -363,17 +362,16 @@ class Service {
           }
         }, (error, response) => {
           if (error) {
-            // console.log('Error', error); // eslint-disable-line
             reject(error);
           } else {
-            // console.log('Response', response); // eslint-disable-line
             resolve(response);
           }
         });
       });
     } else {
       console.log('supplier id don\'t match', data.supplier_id, result.hits[0]._source.supplier_id) // eslint-disable-line
-      // throw error with message "You are not authorized to update this product details"
+      let error = new errors.NotAcceptable('You are not authorized to update this product details');
+      return Promise.reject(error);
     }
     function productDetails() {
       return new Promise((resolve, reject) => {
