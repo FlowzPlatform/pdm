@@ -1,10 +1,10 @@
-// import { create } from 'domain';
 const config = require('../../config.js');
-// const errors = require('@feathersjs/errors');
-// const feathers = require('feathers');
 const vm = require('../vidMiddleware.js');
 const request = require('request');
-
+const elasticsearch = require('elasticsearch');
+const productIndex = 'pdmdev';
+const productDataType = 'product';
+const errors = require('@feathersjs/errors');
 
 let skip = 0;
 let limit = 10;
@@ -329,9 +329,68 @@ class Service {
   }
 
   patch (id, data, params) { // eslint-disable-line no-unused-vars
-    return Promise.resolve(data);
+    let result = this.updateProductDetails(id, data, params);
+    
+    return Promise.resolve(result).then(res => {
+      return res;
+    }).catch(err => {
+      return err;
+    });
   }
-
+  async updateProductDetails(id, data, params) { // eslint-disable-line no-unused-vars 
+    let ESClient = new elasticsearch.Client({
+      host: 'https://' + process.env.esAuth + '@' + esURL,
+      requestTimeout: 100000
+    });
+    const bodyData = {
+      'query': {
+        'match': {
+          '_id': id
+        }
+      }
+    };
+    let result = await (productDetails());
+    if (data.supplier_id == result.hits[0]._source.supplier_id) {
+      delete data._id;
+      return new Promise((resolve, reject) => {
+        ESClient.update({
+          id: id,
+          index: productIndex,
+          type: productDataType,
+          body: {
+            doc: data
+          }
+        }, (error, response) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(response);
+          }
+        });
+      });
+    } else {
+      console.log('supplier id don\'t match', data.supplier_id, result.hits[0]._source.supplier_id) // eslint-disable-line
+      let error = new errors.NotAcceptable('You are not authorized to update this product details');
+      return Promise.reject(error);
+    }
+    function productDetails() {
+      return new Promise((resolve, reject) => {
+        ESClient.search({
+          index: productIndex,
+          type: productDataType,
+          body: bodyData
+        }, (error, response) => {
+          if (error) {
+            // console.log('Error :', id, error); // eslint-disable-line
+            reject(error);
+          } else {
+            // console.log('GET PRODUCT DATA OF :', id, response); // eslint-disable-line
+            resolve(response.hits);
+          }
+        });
+      });
+    }
+  }
   remove (id, params) { // eslint-disable-line no-unused-vars
     return Promise.resolve({ id });
   }
