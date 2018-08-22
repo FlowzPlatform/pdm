@@ -27,6 +27,7 @@ then
     RDB_PORT="$RDB_PORT_MASTER";
     JQ_HOST="$JQ_HOST_MASTER";
     JQ_PORT="$JQ_PORT_MASTER";
+    ESAUTH="$ESAUTH_MASTER";
     }
 elif [ "$TRAVIS_BRANCH" = "develop" ]
 then
@@ -47,6 +48,7 @@ then
       RDB_PORT="$RDB_PORT_DEVELOP";
       JQ_HOST="$JQ_HOST_DEVELOP";
       JQ_PORT="$JQ_PORT_DEVELOP";
+      ESAUTH="$ESAUTH_DEVELOP";
       }
 elif [ "$TRAVIS_BRANCH" = "staging" ]
 then
@@ -67,6 +69,7 @@ then
       RDB_PORT="$RDB_PORT_STAGING";
       JQ_HOST="$JQ_HOST_STAGING";
       JQ_PORT="$JQ_PORT_STAGING";
+      ESAUTH="$ESAUTH_STAGING";
       }      
 else
   {
@@ -86,6 +89,7 @@ else
       RDB_PORT="$RDB_PORT_QA";
       JQ_HOST="$JQ_HOST_QA";
       JQ_PORT="$JQ_PORT_QA";
+      ESAUTH="$ESAUTH_QA";
    }
 fi
 
@@ -97,5 +101,5 @@ curl -u ""$RANCHER_ACCESSKEY":"$RANCHER_SECRETKEY"" \
 -H 'Accept: application/json' \
 -H 'Content-Type: application/json' \
 -d '{
-     "inServiceStrategy":{"launchConfig": {"imageUuid":"docker:'$USERNAME'/pdm_backend_flowz:'$TAG'","kind": "container","labels":{"io.rancher.container.pull_image": "always","io.rancher.scheduler.affinity:host_label": "'"$BACKEND_HOST"'"},"ports": ["3038:3038/tcp","4038:4038/tcp"],"environment": {"JQ_DB":"'"$JQ_DB"'","JQ_HOST":"'"$JQ_HOST"'","JQ_PORT":"'"$JQ_PORT"'","RDB_HOST": "'"$RDB_HOST"'","RDB_PORT": "'"$RDB_PORT"'","domainKey":"'"$DOMAINKEY"'","esUrl": "'"$ESURL"'","secret": "'"$SECRET"'","pwd": "'"$PWD_ENV"'","index":"'"$ES_INDEX"'","wsport":"'"$WSPORT"'"},"healthCheck": {"type": "instanceHealthCheck","healthyThreshold": 2,"initializingTimeout": 60000,"interval": 2000,"name": null,"port": 3038,"recreateOnQuorumStrategyConfig": {"type": "recreateOnQuorumStrategyConfig","quorum": 1},"reinitializingTimeout": 60000,"responseTimeout": 60000,"strategy": "recreateOnQuorum","unhealthyThreshold": 3},"networkMode": "managed"}},"toServiceStrategy":null}' \
+     "inServiceStrategy":{"launchConfig": {"imageUuid":"docker:'$USERNAME'/pdm_backend_flowz:'$TAG'","kind": "container","labels":{"io.rancher.container.pull_image": "always","io.rancher.scheduler.affinity:host_label": "'"$BACKEND_HOST"'"},"ports": ["3038:3038/tcp","4038:4038/tcp"],"environment": {"JQ_DB":"'"$JQ_DB"'","JQ_HOST":"'"$JQ_HOST"'","JQ_PORT":"'"$JQ_PORT"'","RDB_HOST": "'"$RDB_HOST"'","RDB_PORT": "'"$RDB_PORT"'","domainKey":"'"$DOMAINKEY"'","esUrl": "'"$ESURL"'","secret": "'"$SECRET"'","pwd": "'"$PWD_ENV"'","index":"'"$ES_INDEX"'","wsport":"'"$WSPORT"'","ESAUTH":"'"$ESAUTH"'"},"healthCheck": {"type": "instanceHealthCheck","healthyThreshold": 2,"initializingTimeout": 60000,"interval": 2000,"name": null,"port": 3038,"recreateOnQuorumStrategyConfig": {"type": "recreateOnQuorumStrategyConfig","quorum": 1},"reinitializingTimeout": 60000,"responseTimeout": 60000,"strategy": "recreateOnQuorum","unhealthyThreshold": 3},"networkMode": "managed"}},"toServiceStrategy":null}' \
 $RANCHER_URL/v2-beta/projects/$ENV_ID/services/$SERVICE_ID?action=upgrade
