@@ -9,6 +9,8 @@
   },
   "rethinkdb": {
     "db": "feather_product",
+    "buffer": 20,
+    "timeoutGb": 60000,
     "servers": [
       {
         "host": "RDB_HOST",
