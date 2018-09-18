@@ -1,7 +1,7 @@
-const errors = require('@feathersjs/errors');
+// const errors = require('@feathersjs/errors');
 const config = require('../../config.js');
-const vm = require('../vidMiddleware.js');
-var jwt = require('jsonwebtoken');
+// const vm = require('../vidMiddleware.js');
+// var jwt = require('jsonwebtoken');
 
 class Service {
   constructor (options) {
@@ -88,7 +88,7 @@ class Service {
     return Promise.resolve(searchResult);
   }
 
-  _setup(app, path) {
+  /* _setup(app, path) {
     var self = this;
     app.get('/' + path + '/:region/:id', async function (req, res, err) {
       let flag = false;
@@ -119,7 +119,7 @@ class Service {
         res.send(response);
       }
     });
-  }
+  } */
 
   get (region,params) {
     let searchResult = this.getDataFromES(region, params);

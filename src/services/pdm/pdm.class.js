@@ -1,5 +1,5 @@
 const config = require('../../config.js');
-const vm = require('../vidMiddleware.js');
+const vm = require('../vidMiddleware.js'); // eslint-disable-line
 const request = require('request');
 const elasticsearch = require('elasticsearch');
 const productIndex = 'pdmdev';
@@ -144,13 +144,14 @@ class Service {
     return searchResult;
   }
 
-  _setup(app, path) {
+  /* _setup(app, path) { // eslint-disable-line
     var self = this;
     app.post('/' + path + '/:country',async function (req, res, err) {
       // let flag = false
       if (err && err === 'route') {
         return done(); // eslint-disable-line no-undef
       }
+      console.log('Custom path call ::', path, req.params.country); //eslint-disable-line no-console
       // jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
       //   if(err) {
       //     flag = true
@@ -177,25 +178,15 @@ class Service {
     });
     app.post('/:index//:action', async function (req, res, err) {
       var country;
-      // let flag = false
       if (err & err === 'router') {
         return done(err); // eslint-disable-line no-undef
       }
-      // jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
-      //   if(err) {
-      //     flag = true
-      //   }
-      // })
       await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
         .then(response => {
           config.credOptions.username = response[0];
           config.credOptions.password = response[1];
           req.params.credential = response;
         });
-      // if (flag) {
-      //   var er = new errors.NotAuthenticated('No auth token')
-      //   res.send(er)
-      // } else 
       if (req.params.credential[2]) {
         res.send(req.params.credential[2]);
       } else {
@@ -205,25 +196,15 @@ class Service {
       }
     });
     app.post('/:index/', async function (req, res, err) {
-      // let flag = false
       if (err & err === 'router') {
         return done(err); // eslint-disable-line no-undef
       }
-      // jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) {
-      //   if(err) {
-      //     flag = true
-      //   }
-      // })
       await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
         .then(response => {
           config.credOptions.username = response[0];
           config.credOptions.password = response[1];
           req.params.credential = response;
         });
-      // if (flag) {
-      //   var er = new errors.NotAuthenticated('No auth token')
-      //   res.send(er)
-      // } else 
       if (req.params.credential[2]) {
         res.send(req.params.credential[2]);
       } else {
@@ -250,7 +231,7 @@ class Service {
         res.send(searchResult);
       }
     });
-  }
+  } */
   
   getResultFromES(query) {
     skip == 0 && limit == 10 ? uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search' : uri = 'https://' + config.credOptions.username + ':' + config.credOptions.password + '@' + esURL + '/' + config.credOptions.index + '/_search?from=' + skip + '&size=' + limit;
