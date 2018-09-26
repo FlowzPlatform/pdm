@@ -2,6 +2,7 @@
   "host": "localhost",
   "port": 3038,
   "public": "../public/",
+  "domainKey": "",
   "paginate": {
     "default": 10,
     "max": 50
@@ -15,8 +16,21 @@
       }
     ]
   },
+  "jobQueue": {
+    "url": "",
+    "db": "",
+    "host": "",
+    "port": ""
+  },
+  "credOptions": {
+    "index" : "",
+    "username": "",
+    "password": "",
+    "type": ""
+  },
   "esUrl": "xxxxx",
   "secret": "xxxxxxxxxxx",
   "auth_url":"xxxxxx",
-  "pwd": "xxxxxx"
+  "pwd": "xxxxxx",
+  "wsPort": "4038"
 }

@@ -1,271 +1,224 @@
-/* eslint-disable no-unused-vars */
-const feathers = require('@feathersjs/feathers');
-const express = require('@feathersjs/express');
-const rest = require('@feathersjs/express/rest');
-var jwt1 = require('jsonwebtoken');
-var request = require('request')
-var username = ''
-const config = require('../../../config/default.json');
-if (process.env.esUrl != '')
-    config.esUrl = process.env.esUrl
-if(process.env.secret != '')
-    config.secret = process.env.secret
-if(process.env.auth_url != '')
-    config.auth_url = process.env.auth_url
-if(process.env.pwd != '')
-    config.pwd = process.env.pwd
+const errors = require('@feathersjs/errors');
+const config = require('../../config.js');
+const vm = require('../vidMiddleware.js');
+var jwt = require('jsonwebtoken');
 
 class Service {
-
   constructor (options) {
     this.options = options || {};
   }
-
-
-
+  
   async find (params) {
-    console.log("called....")
-    let region = params.query.region
+    let region = params.query.region;
     let bodyData = {
-      "query" : {
-         "bool" : {
-            "filter" : {
-               "bool" : {
-                 "should" : [
-                   { "bool" : {
-                     "must" : [
-                        { "match" : {"available_regions" : region}},
-                       { "bool" : {
-                     "must_not" : [
-                       { "match" : {"non-available_regions" : region}}
-                     ]
-                   }}
-                     ]
-                   }},
-                   { "bool" : {
-                     "must" : [
-                        { "match" : {"available_regions" : ""}},
-                       { "match" : {"non-available_regions" : ""}}
-                     ]
-                   }}
-                 ]
-              }
-            },
-              "must": {
-                     "match_all": {
+      'query' : {
+        'bool' : {
+          'filter' : {
+            'bool' : {
+              'should' : [
+                { 'bool' : {
+                  'must' : [
+                    { 'match' : {'available_regions' : region}},
+                    { 'bool' : {
+                      'must_not' : [
+                        { 'match' : {'non-available_regions' : region}}
+                      ]
+                    }}
+                  ]
+                }},
+                { 'bool' : {
+                  'must' : [
+                    { 'match' : {'available_regions' : ''}},
+                    { 'match' : {'non-available_regions' : ''}}
+                  ]
+                }}
+              ]
+            }
+          },
+          'must': {
+            'match_all': {
 
-                     }
-                   }
+            }
+          }
 
-         }
+        }
       }
-   }
-
-    let searchResult = this.getResultFromES(bodyData,params)
+    };
+    let searchResult = this.getResultFromES(bodyData);
     return Promise.resolve(searchResult);
   }
 
 
-async getByIdAndCountry(region,id,req) {
-      let bodyData ={
-            "query" : {
-               "bool" : {
-                  "filter" : {
-                     "bool" : {
-                       "should" : [
-                         { "bool" : {
-                           "must" : [
-                              { "match" : {"available_regions" :region }},
-                             { "bool" : {
-                           "must_not" : [
-                             { "match" : {"non-available_regions" : region}}
-                           ]
-                         }}
-                           ]
-                         }},
-                         { "bool" : {
-                           "must" : [
-                              { "match" : {"available_regions" : ""}},
-                             { "match" : {"non-available_regions" : ""}}
-                           ]
-                         }}
-                       ]
-                    }
-                  },
-                    "must": {
-                           "match": {
-                                "_id": id
-                           }
-                         }
-
-               }
+  async getByIdAndCountry(region,id) {
+    let bodyData ={
+      'query' : {
+        'bool' : {
+          'filter' : {
+            'bool' : {
+              'should' : [
+                { 'bool' : {
+                  'must' : [
+                    { 'match' : {'available_regions' :region }},
+                    { 'bool' : {
+                      'must_not' : [
+                        { 'match' : {'non-available_regions' : region}}
+                      ]
+                    }}
+                  ]
+                }},
+                { 'bool' : {
+                  'must' : [
+                    { 'match' : {'available_regions' : ''}},
+                    { 'match' : {'non-available_regions' : ''}}
+                  ]
+                }}
+              ]
+            }
+          },
+          'must': {
+            'match': {
+              '_id': id
             }
           }
-          let username =  await this.check(req,bodyData)
-          let searchResult = await this.getResultByBody(bodyData,username)
-          return Promise.resolve(searchResult)
-             }
-  // ...
+        }
+      }
+    };
+    // let username =  await this.check(req,bodyData)
+    let searchResult = await this.getResultByBody(bodyData,config.credOptions.username);
+    return Promise.resolve(searchResult);
+  }
+
   _setup(app, path) {
     var self = this;
-    app.get('/' + path + '/:region/:id', async function (req, res,err) {
-      if(err){
-        console.log(err)
+    app.get('/' + path + '/:region/:id', async function (req, res, err) {
+      let flag = false;
+      let region = req.params.region;
+      let id = req.params.id;
+      if (err && err === 'route') {
+        return done(); // eslint-disable-line no-undef
       }
-      let region = req.params.region
-      let id = req.params.id
-      let response = await self.getByIdAndCountry(region,id,req);
-      res.send(response)
+      jwt.verify(req.feathers.headers.authorization, config.secret, function(err, decoded) { // eslint-disable-line no-unused-vars
+        if(err) {
+          flag = true;
+        }
+      });
+      await vm.check(app.service('vshopdata'), req.feathers.headers.vid, false)
+        .then(response => {
+          config.credOptions.username = response[0];
+          config.credOptions.password = response[1];
+          req.params.credential = response;
+        });
+      if (flag) {
+        var er = new errors.NotAuthenticated('No auth token');
+        res.send(er);
+      } else if (req.params.credential[2]) {
+        res.send(req.params.credential[2]);
+      } else {
+        let response = await self.getByIdAndCountry(region,id);
+        console.log('info: after: api/products - Method: custom get'); // eslint-disable-line no-console
+        res.send(response);
+      }
     });
   }
 
   get (region,params) {
-    console.log("get.........")
-    // console.log("@@@@@@@@@@@",bodyData)
-    let searchResult = this.getDataFromES(region, params)
-    return Promise.resolve(searchResult)
+    let searchResult = this.getDataFromES(region, params);
+    return Promise.resolve(searchResult);
   }
 
-  async check (req,bodyData) {
-
-   console.log(req.headers.authorization);
-   var decoded = jwt1.verify(req.headers.authorization, config.secret);
-   console.log(decoded)
-   var userid = decoded.userId
-   console.log("******************",userid) // bar
-   let username = await this.getUserById(req,userid)
-   return username
-
-   }
-
-
-   getUserById (req,userid) {
-     return new Promise((resolve,reject)=>{
-       let url = config.auth_url + userid
-       var requestObj = {
-         url: url,
-         headers: {
-           'Authorization':  req.headers.authorization,
-           'Accept': 'application/json'
-         }
-       }
-
-        request(requestObj,function (err, response) {
-         if (err){
-           console.log(err)
-         }
-         else{
-           let res = response.body
-           let parsedResponse = JSON.parse(res)
-           console.log(parsedResponse.data);
-            username = parsedResponse.data[0].username
-           resolve(username)
-         }
-       })
-     })
-
-   }
-
-
-   async getResultFromES (bodyData,params) {
+  async getResultFromES (bodyData) {
 
     // setEsClient(body)
     let  elasticsearch = this.options.elasticsearch;
     let  host = this.options.esUrl;
-    let userName = params.username
-    let passWord = config.pwd
+    let userName = config.credOptions.username;
+    let passWord = config.credOptions.password;
     const esClient = new elasticsearch.Client({
       host: host,
-      httpAuth:userName+":"+passWord
-    })
+      httpAuth:userName+':'+passWord
+    });
 
-    let esOptions = this.options.esOption
+    let esOptions = this.options.esOption;
 
     let response = await esClient.search({
       index:  esOptions.index,
       type:  esOptions.type,
       body: bodyData
-    })
-    return response
+    });
+    return response;
   }
 
   async getResultByBody (bodyData,username) {
     let elasticsearch = this.options.elasticsearch;
     let host = this.options.esUrl;
-    let userName = username
-    let passWord = config.pwd
+    let userName = username;
+    let passWord = config.credOptions.password;
     const esClient = new elasticsearch.Client({
       host: host,
-      httpAuth:userName+":"+passWord
-    })
+      httpAuth:userName+':'+passWord
+    });
 
-    let esOptions = this.options.esOption
+    let esOptions = this.options.esOption;
     let response = await esClient.search({
       index: esOptions.index,
       type: esOptions.type,
       body: bodyData
-    })
-    return response
+    });
+    return response;
   }
 
   async getDataFromES (region, params, query) {
-    console.log("post/get.........")
     let bodyData = {
-      "query" : {
-        "bool" : {
-           "filter" : {
-              "bool" : {
-                "should" : [
-                  { "bool" : {
-                    "must" : [
-                       { "match" : {"available_regions" : region}},
-                      { "bool" : {
-                    "must_not" : [
-                      { "match" : {"non-available_regions" : region}}
-                    ]
-                  }}
-                    ]
-                  }},
-                  { "bool" : {
-                    "must" : [
-                       { "match" : {"available_regions" : ""}},
-                      { "match" : {"non-available_regions" : ""}}
-                    ]
-                  }}
-                ]
-             }
-           },
-            "must": {
-                    "match_all": {
+      'query' : {
+        'bool' : {
+          'filter' : {
+            'bool' : {
+              'should' : [
+                { 'bool' : {
+                  'must' : [
+                    { 'match' : {'available_regions' : region}},
+                    { 'bool' : {
+                      'must_not' : [
+                        { 'match' : {'non-available_regions' : region}}
+                      ]
+                    }}
+                  ]
+                }},
+                { 'bool' : {
+                  'must' : [
+                    { 'match' : {'available_regions' : ''}},
+                    { 'match' : {'non-available_regions' : ''}}
+                  ]
+                }}
+              ]
+            }
+          },
+          'must': {
+            'match_all': {
 
-                    }
-                }
+            }
+          }
         }
       }
-    }
+    };
 
     if (query !== undefined && query !== '') {
-      bodyData.query.bool.must = query
+      bodyData.query.bool.must = query;
     }
 
-    // console.log("@@@@@@@@@@@", bodyData.query.bool)
-      let searchResult = this.getResultFromES(bodyData, params)
-      return Promise.resolve(searchResult)
+    let searchResult = this.getResultFromES(bodyData);
+    return Promise.resolve(searchResult);
   }
-
-
-
-
 
   create (data, params) {
     if (data.country === undefined || data.country === '') {
-      return {'message': 'country required'}
+      return {'message': 'country required'};
     }
-    let query = ''
+    let query = '';
     if (data.query !== undefined && data.query !== '') {
-      query = data.query
+      query = data.query;
     }
-    data = this.getDataFromES (data.country, params, query)
+    data = this.getDataFromES (data.country, params, query);
     if (Array.isArray(data)) {
       return Promise.all(data.map(current => this.create(current)));
     }

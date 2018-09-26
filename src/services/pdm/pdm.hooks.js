@@ -1,8 +1,11 @@
-
+const vm = require('../vidMiddleware.js');
+const config = require('../../config.js');
 
 module.exports = {
   before: {
-    all: [],
+    all: [
+      hook => getUsername(hook)
+    ],
     find: [],
     get: [],
     create: [],
@@ -31,3 +34,14 @@ module.exports = {
     remove: []
   }
 };
+
+async function getUsername (hook) {
+  if (Object.keys(hook.params).length !== 0) {
+    await vm.check(hook.app.service('vshopdata'), hook.params.headers.vid, true)
+      .then(response => {
+        config.credOptions.username = response[0];
+        config.credOptions.password = response[1];
+        hook.params.credential = response;
+      });
+  }
+}
