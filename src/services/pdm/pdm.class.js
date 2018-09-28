@@ -2,7 +2,7 @@ const config = require('../../config.js');
 const vm = require('../vidMiddleware.js');
 const request = require('request');
 const elasticsearch = require('elasticsearch');
-const productIndex = 'pdmdev';
+const productIndex = config.credOptions.index;
 const productDataType = 'product';
 const errors = require('@feathersjs/errors');
 
