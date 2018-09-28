@@ -1,6 +1,6 @@
 const auth = require('@feathersjs/authentication');
 var axios = require('axios');
-let errors = require('@feathersjs/errors') ;
+let errors = require('@feathersjs/errors');
 const config = require('../../config.js');
 const _ = require('lodash');
 
