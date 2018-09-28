@@ -62,6 +62,7 @@ async function beforeCreate(hook){
     suppliers = hook.data.suppliers;
     userId = id;
     hook.data = {};
+    hook.data.createdAt = new Date();
     hook.data.virtualShopName= virtualShopName;
     hook.data.subscriptionId = subscriptionId;
     hook.data.userId= id;
